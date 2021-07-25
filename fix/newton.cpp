@@ -10,15 +10,14 @@ void newton(dynamical_system &ds) {
   double norm;
 
   store_constant_state(ds);
-  store_state(vp, ds);
 
   for (int p = 0; p < ds.inc_iter; p++) {
     for (int i = 0; i < ds.max_iter; i++) {
+      store_state(vp, ds);
+
       F = func_newton(ds);
       J = jac_newton(ds);
       vn = Eigen::ColPivHouseholderQR<Eigen::MatrixXd>(J).solve(-F) + vp;
-
-      store_state(vn, ds);
 
       norm = (vn - vp).norm();
       if (norm < ds.eps) {
@@ -26,8 +25,7 @@ void newton(dynamical_system &ds) {
         std::cout << p << " : converged (iter = " << i + 1 << ")" << std::endl;
         std::cout << "params : " << ds.params.transpose() << std::endl;
         std::cout << "states : " << vn.transpose() << std::endl;
-        eigvals =
-            Eigen::EigenSolver<Eigen::MatrixXd>(ds.dTldu).eigenvalues();
+        eigvals = Eigen::EigenSolver<Eigen::MatrixXd>(ds.dphidx[0]).eigenvalues();
         std::cout << "eigen value of dTldu (Re(μ), Im(μ)) :" << std::endl
                   << eigvals << std::endl;
         std::cout << "abs = " << std::abs(eigvals(0))
