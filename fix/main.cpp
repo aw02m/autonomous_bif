@@ -16,16 +16,17 @@ int main(int argc, char *argv[]) {
   ifs >> json;
   dynamical_system ds(json);
 
-  std::cout << "********************************" << std::endl;
-  std::cout << "<Initial condition>" << std::endl;
-  std::cout << "ODE solver : ";
+  std::cout << "**************************************************"
+            << std::endl;
+  std::cout << "<initial condition>" << std::endl;
+  std::cout << "ode solver : ";
   if (ds.use_classic_rk != false) {
-    std::cout << "Classic Runge-Kutta 4(5)" << std::endl;
+    std::cout << "classic runge-kutta 4(5)" << std::endl;
   } else {
-    std::cout << "Runge-Kutta-Fehlberg 5(6)" << std::endl;
+    std::cout << "runge-kutta-fehlberg 5(6)" << std::endl;
   }
-  std::cout << "Increment parameter : " << ds.inc_param << std::endl;
-  std::cout << "System dimention : " << ds.xdim << std::endl;
+  std::cout << "increment parameter : " << ds.inc_param << std::endl;
+  std::cout << "system dimention : " << ds.xdim << std::endl;
   std::cout << "period : " << ds.period << std::endl;
   std::cout << "p_sec def. : q(x) = x(" << ds.p_index << ") - " << ds.p_place
             << std::endl;
@@ -37,7 +38,8 @@ int main(int argc, char *argv[]) {
   std::cout << ds.u0.transpose() << std::endl;
   std::cout << "tau : ";
   std::cout << ds.tauk.transpose() << std::endl;
-  std::cout << "********************************" << std::endl;
+  std::cout << "**************************************************"
+            << std::endl;
 
   newton(ds);
 

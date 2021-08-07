@@ -38,31 +38,6 @@ void store_state(const Eigen::VectorXd &vp, dynamical_system &ds) {
   ds.dTldu = dTldu(ds);
 }
 
-Eigen::VectorXd variational_eq(double t, const Eigen::VectorXd &x,
-                               const dynamical_system &ds) {
-  Eigen::VectorXd ret(ds.xdim + ds.xdim * ds.xdim);
-
-  Eigen::VectorXd state_x = x(Eigen::seqN(0, ds.xdim));
-
-  Eigen::MatrixXd state_dphidx(ds.xdim, ds.xdim);
-  state_dphidx = x(Eigen::seqN(ds.xdim, ds.xdim * ds.xdim));
-  state_dphidx.resize(ds.xdim, ds.xdim);
-
-  ret(Eigen::seqN(0, ds.xdim)) = f(t, state_x, ds);
-  ret(Eigen::seqN(ds.xdim, ds.xdim * ds.xdim)) =
-      variational_init1(t, state_x, state_dphidx, ds);
-
-  return ret;
-}
-
-Eigen::VectorXd variational_init1(double t, const Eigen::VectorXd &phi,
-                                  const Eigen::MatrixXd &dphidx,
-                                  const dynamical_system &ds) {
-  Eigen::MatrixXd ret = dfdx(phi, ds) * dphidx;
-  ret.resize(ds.xdim * ds.xdim, 1);
-  return ret;
-}
-
 Eigen::VectorXd func_newton(const dynamical_system &ds) {
   Eigen::VectorXd ret(ds.udim + ds.period);
 
@@ -80,7 +55,7 @@ Eigen::MatrixXd jac_newton(const dynamical_system &ds) {
   ret(Eigen::seqN(0, ds.udim), ds.udim) = dTldtau(ds);
   ret(ds.udim, Eigen::seqN(0, ds.udim)) = dqdu(ds);
   ret(ds.udim, ds.udim) = dqdtau(ds)(0, 0);
-  
+
   return ret;
 }
 
@@ -142,6 +117,31 @@ Eigen::MatrixXd dhdx(const dynamical_system &ds) {
 Eigen::MatrixXd dh_invdu(const dynamical_system &ds) {
   Eigen::MatrixXd ret = Eigen::MatrixXd::Identity(ds.xdim, ds.xdim);
   removeCol(ret, ds.p_index);
+  return ret;
+}
+
+Eigen::VectorXd variational_eq(double t, const Eigen::VectorXd &x,
+                               const dynamical_system &ds) {
+  Eigen::VectorXd ret(ds.xdim + ds.xdim * ds.xdim);
+
+  Eigen::VectorXd state_x = x(Eigen::seqN(0, ds.xdim));
+
+  Eigen::MatrixXd state_dphidx(ds.xdim, ds.xdim);
+  state_dphidx = x(Eigen::seqN(ds.xdim, ds.xdim * ds.xdim));
+  state_dphidx.resize(ds.xdim, ds.xdim);
+
+  ret(Eigen::seqN(0, ds.xdim)) = f(t, state_x, ds);
+  ret(Eigen::seqN(ds.xdim, ds.xdim * ds.xdim)) =
+      variational_init1(t, state_x, state_dphidx, ds);
+
+  return ret;
+}
+
+Eigen::VectorXd variational_init1(double t, const Eigen::VectorXd &phi,
+                                  const Eigen::MatrixXd &dphidx,
+                                  const dynamical_system &ds) {
+  Eigen::MatrixXd ret = dfdx(phi, ds) * dphidx;
+  ret.resize(ds.xdim * ds.xdim, 1);
   return ret;
 }
 

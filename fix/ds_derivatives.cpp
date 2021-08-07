@@ -33,8 +33,7 @@ Eigen::MatrixXd dfdx(const Eigen::VectorXd &x, const dynamical_system &ds) {
 
   // bvp
   // ret(0, 0) =
-  //     ds.params(0) +
-  //     ds.params(1) / std::pow(std::cosh(ds.params(1) * x(0)), 2);
+  //     ds.params(0) + 1/std::pow(std::cosh(ds.params(1) * x(0)), 2) * ds.params(1);
   // ret(0, 1) = 0;
   // ret(0, 2) = -1;
   // ret(1, 0) = 0;
