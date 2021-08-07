@@ -1,0 +1,58 @@
+{
+    "_comment": "tick : rk step on pp.py",
+    "tick": 0.01,
+    "axis": [
+        0,
+        1
+    ],
+    "xrange": [
+        -20.0,
+        20.0
+    ],
+    "yrange": [
+        -20.0,
+        20.0
+    ],
+    "x0": [
+        0.5,
+        0.5,
+        0.5
+    ],
+    "fixed": [
+        -3.90478467e+00,
+        3.55618313e-17,
+        -2.84026411e-01
+    ],
+    "tau": 6.261293707678647,
+    "params": [
+        0.2,
+        0.7,
+        5.7
+    ],
+    "dparams": [
+        0.01,
+        0.01,
+        0.01
+    ],
+    "_comment_poincare_section": "poincare section (x[[p_index]]-[p_place] = 0)",
+    "p_index": 1,
+    "p_place": 0,
+    "period": 1,
+    "_comment_RKF_param": "use_classic_rk : 0.RKF56, !0.Classic RK45, tol : tolerance",
+    "use_classic_rk": false,
+    "rk_div": 100,
+    "rkf_first_h": 0.001,
+    "rkf_h_max": 0.1,
+    "rkf_h_min": 1e-04,
+    "rkf_tol": 2.0,
+    "rkf_false_iter": 100,
+    "_comment_Newton_param": "dif_strip is used for numerical differentiation(if it's enabled)",
+    "inc_param": 1,
+    "var_param": 0,
+    "delta_inc": -0.001,
+    "inc_iter": 1000,
+    "max_iter": 16,
+    "dif_strip": 1e-04,
+    "eps": 1e-08,
+    "explode": 100
+}
