@@ -1,3 +1,6 @@
+English md is in preparation.
+References are at of the end.
+
 # autonomous_bif
 自律系(微分方程式)の分岐解析ツールです．(2021/7/26現在，bif製作中)
 本プログラムは3部に分かれています．
@@ -22,6 +25,9 @@ ppは相平面をリアルタイムに描画します．(Original:Tetsushi Ueta)
 * "x0" : プログラム実行時の初期値．
 * "params" : 力学系のパラメタ．
 * "dparams" : プログラム内でパラメタを変更する際の刻み幅．
+* "p_index" : ポアンカレ断面を配置する軸(変数)を指定します．
+* "p_place" : ポアンカレ断面を配置する場所を指定します．
+** q(x[p_index])-p_place = 0 に断面が配置されます．
 
 ### 使用法
 はじめに，pp.py内のシステム方程式を設定します．
@@ -67,3 +73,12 @@ fixはppで取得した固定点情報をもとに，パラメタを変化させ
 
 ## bif概要
 準備中
+
+# References
+[1] Yuri, Kuznetsov, "Elements of Applied Bifurcation Theory", Springer, AMS 112.  
+[2] T. Kousaka, T. Ueta, and H. Kawakami, “Bifurcation of switched nonlinear dynamical systems,” IEEE Transactions, CASII, vol. 46, no. 7, pp. 878–885, 1999.  
+[3] T. UETA, M. TSUEIKE, H. KAWAKAMI, T. YOSHINAGA, and Y. KATSUTA, “A computation of bifurcation parameter values for limit cycles,” IEICE Transactions on Fundamentals of Electronics, Communications and Computer Sciences, vol. 80, no. 9, pp. 1725–1728, 1997, issn: 09168508.  
+[4] T. Ueta, T. Yoshinaga, H. Kawakami, and G. Chen, “A method to calculate neimark-sacker bifurcation in autonomous systems,” IEICE-Transactions Fundamentals, EA, vol. 83, no. 10, pp. 1141–1147, 2000.  
+[5] M. Bernardo, C. Budd, A. R. Champneys, and P. Kowalczyk, Piecewise-smooth dynamical systems: theory and applications. 2008, vol. 163.  
+[6] S. Amoh, "A Bifurcation Analysis Method for High-dimensional Hybrid Autonomous Systems", Master thesis, Tokushima University, 2021.  
+[7] H. Kawakami, "非線形現象 - 定常的接近法", 2005.
