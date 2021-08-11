@@ -2,12 +2,12 @@
 #include <chrono>
 
 void newton(dynamical_system &ds) {
-  Eigen::VectorXd vp(ds.xdim);
-  vp << ds.u0, ds.tauk;
-  Eigen::VectorXd vn(ds.xdim);
-  Eigen::VectorXd F(ds.xdim);
-  Eigen::MatrixXd J(ds.xdim, ds.xdim);
-  Eigen::VectorXcd eigvals(ds.xdim);
+  Eigen::VectorXd vp(ds.xdim + 1);
+  vp << ds.u0, ds.tauk, ds.params(ds.var_param);
+  Eigen::VectorXd vn(ds.xdim + 1);
+  Eigen::VectorXd F(ds.xdim + 1);
+  Eigen::MatrixXd J(ds.xdim + 1, ds.xdim + 1);
+  Eigen::VectorXcd eigvals;
   double norm;
 
   store_constant_state(ds);
@@ -44,6 +44,7 @@ void newton(dynamical_system &ds) {
         std::cout << "**************************************************"
                   << std::endl;
         vp = vn;
+        ds.params(ds.var_param) = vn(ds.xdim);
         break;
       } else if (norm >= ds.explode) {
         std::cerr << "explode (iter = " << i + 1 << ")" << std::endl;
@@ -56,6 +57,7 @@ void newton(dynamical_system &ds) {
       }
 
       vp = vn;
+      ds.params(ds.var_param) = vn(ds.xdim);
     }
     ds.params[ds.inc_param] += ds.delta_inc;
   }

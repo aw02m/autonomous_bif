@@ -32,8 +32,16 @@ Eigen::VectorXd variational_para1(double t, const Eigen::VectorXd &dphidlambda,
 
 Eigen::MatrixXd dTldu(const dynamical_system &ds);
 Eigen::VectorXd dTldtau(const dynamical_system &ds);
+Eigen::VectorXd dTldlambda(const dynamical_system &ds);
 Eigen::MatrixXd dqdu(const dynamical_system &ds);
 Eigen::MatrixXd dqdtau(const dynamical_system &ds);
+Eigen::VectorXd dqdlambda(const dynamical_system &ds);
+Eigen::MatrixXd dchidu(const dynamical_system &ds);
+double dchidtau(const dynamical_system &ds);
+double dchidlambda(const dynamical_system &ds);
+
+double det_derivative(const Eigen::MatrixXd &A, const Eigen::MatrixXd &dA,
+                      const dynamical_system &ds);
 
 void removeRow(Eigen::MatrixXd &matrix, unsigned int rowToRemove);
 void removeCol(Eigen::MatrixXd &matrix, unsigned int colToRemove);

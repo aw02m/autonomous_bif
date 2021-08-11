@@ -44,4 +44,17 @@ dynamical_system::dynamical_system(nlohmann::json json) {
       std::vector<Eigen::MatrixXd>(period, Eigen::MatrixXd::Zero(xdim, xdim));
   dphidx =
       std::vector<Eigen::MatrixXd>(period, Eigen::MatrixXd::Zero(xdim, xdim));
+  dphidlambda =
+      std::vector<Eigen::VectorXd>(period, Eigen::VectorXd::Zero(xdim));
+  dphidxdx = std::vector<std::vector<Eigen::MatrixXd>>(
+      period, std::vector<Eigen::MatrixXd>(xdim, Eigen::MatrixXd::Zero(xdim, xdim)));
+  dphidxdlambda = 
+      std::vector<Eigen::MatrixXd>(period, Eigen::MatrixXd::Zero(xdim, xdim));
+  dphidxdtau = 
+      std::vector<Eigen::MatrixXd>(period, Eigen::MatrixXd::Zero(xdim, xdim));
+
+  size_dphidx = xdim * xdim;
+  size_dphidlambda = xdim;
+  size_dphidxdx = xdim * xdim * xdim;
+  size_dphidxdlambda = xdim * xdim;
 }

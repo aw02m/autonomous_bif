@@ -50,6 +50,14 @@ public:
   std::vector<std::vector<Eigen::MatrixXd>> dphidxdx;
   std::vector<Eigen::VectorXd> dphidlambda;
   std::vector<Eigen::MatrixXd> dphidxdlambda;
+  std::vector<Eigen::MatrixXd> dphidxdtau;
+
+  unsigned int size_dphidx;
+  unsigned int size_dphidlambda;
+  unsigned int size_dphidxdx;
+  unsigned int size_dphidxdlambda;
+
+  Eigen::MatrixXd chara_poly;
 
   Eigen::MatrixXd dTldu;
 };

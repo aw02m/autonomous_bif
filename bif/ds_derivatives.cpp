@@ -66,20 +66,27 @@ Eigen::VectorXd dfdlambda(const Eigen::VectorXd &x,
   return ret;
 }
 
-Eigen::MatrixXd dfdxdx(const Eigen::VectorXd &x, const dynamical_system &ds,
-                       unsigned int k) {
-  Eigen::MatrixXd ret = Eigen::MatrixXd::Zero(ds.xdim, ds.xdim);
+std::vector<Eigen::MatrixXd> dfdxdx(const Eigen::VectorXd &x,
+                                    const dynamical_system &ds) {
+  std::vector<Eigen::MatrixXd> ret(ds.xdim,
+                                   Eigen::MatrixXd::Zero(ds.xdim, ds.xdim));
 
-  switch (k) {
-  case 0:
-    ret(2, 2) = 1;
-    break;
-  case 1:
-    break;
-  case 2:
-    ret(2, 0) = 1;
-    break;
-  }
+  // for (int i = 0; i < ds.xdim; i++) {
+    // ret[i] = Eigen::MatrixXd::Zero(ds.xdim, ds.xdim);
+  // }
+
+  ret[0](2, 2) = 1;
+  ret[2](2, 0) = 1;
+  // switch (k) {
+  // case 0:
+  //   ret(2, 2) = 1;
+  //   break;
+  // case 1:
+  //   break;
+  // case 2:
+  //   ret(2, 0) = 1;
+  //   break;
+  // }
 
   return ret;
 }
