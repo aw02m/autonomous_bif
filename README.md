@@ -1,8 +1,10 @@
 English md is in preparation.
 References are at of the end.
 
+分岐理論の詳細についてはaw02m/bifurcation_theoryを参照してください．(加筆中)
+
 # autonomous_bif
-自律系(微分方程式)の分岐解析ツールです．(2021/7/26現在，bif製作中)
+自律系(微分方程式)の分岐解析ツールです．
 本プログラムは3部に分かれています．
 
 1. pp (Phase portrait; 相平面描画ツール)
@@ -72,7 +74,7 @@ fixはppで取得した固定点情報をもとに，パラメタを変化させ
 計算に成功すると固定点座標，パラメタ値，特性定数，特性定数のノルム・偏角が出力されます．特性定数のノルムが1に近いもの(分岐点)をピックアップしてbifプログラムに渡してください．
 
 ## bif概要
-準備中
+完成しました．READMEは準備中...
 
 # References
 [1] Yuri, Kuznetsov, "Elements of Applied Bifurcation Theory", Springer, AMS 112.  
