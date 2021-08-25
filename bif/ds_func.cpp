@@ -1,9 +1,9 @@
 #include "ds_func.hpp"
 
 void store_constant_state(dynamical_system &ds) {
-  ds.dqdx = dqdx(ds);
   ds.dhdx = dhdx(ds);
   ds.dh_invdu = dh_invdu(ds);
+  ds.dqdx = dqdx(ds);
 }
 
 void store_state(const Eigen::VectorXd &vp, dynamical_system &ds) {
@@ -30,6 +30,8 @@ void store_state(const Eigen::VectorXd &vp, dynamical_system &ds) {
 
   unsigned int counter = 0;
   ds.xk[1] = sol(Eigen::seqN(counter, ds.xdim));
+  ds.fk[0] = f(0, ds.xk[1], ds);
+  ds.dfdx[0] = dfdx(ds.xk[1], ds);
   counter += ds.xdim;
 
   Eigen::MatrixXd dphidx;
@@ -55,14 +57,19 @@ void store_state(const Eigen::VectorXd &vp, dynamical_system &ds) {
   dphidxdlambdak.resize(ds.xdim, ds.xdim);
   ds.dphidxdlambda[0] = dphidxdlambdak;
 
-  ds.dphidxdtau[0] = dfdx(ds.xk[1], ds) * ds.dphidx[0];
-
-  ds.fk[0] = f(0, ds.xk[1], ds);
-  ds.dfdx[0] = dfdx(ds.xk[1], ds);
-
-  ds.chara_poly = ds.dphidx[0] + Eigen::MatrixXd::Identity(ds.xdim, ds.xdim);
+  ds.dphidxdtau[0] = ds.dfdx[0] * ds.dphidx[0];
 
   ds.dTldu = dTldu(ds);
+  ds.dTldtau = dTldtau(ds);
+  ds.dTldlambda = dTldlambda(ds);
+  ds.dqdu = dqdu(ds);
+  ds.dqdtau = dqdtau(ds);
+  ds.dqdlambda = dqdlambda(ds);
+  ds.dTldudu = dTldudu(ds);
+  ds.dTldudtau = dTldudtau(ds);
+  ds.dTldudlambda = dTldudlambda(ds);
+
+  ds.chara_poly = ds.dTldu + Eigen::MatrixXd::Identity(ds.udim, ds.udim);
 }
 
 Eigen::VectorXd variational_eq(double t, const Eigen::VectorXd &x,
@@ -135,17 +142,17 @@ Eigen::VectorXd func_newton(const dynamical_system &ds) {
 
   ret(Eigen::seqN(0, ds.udim)) = ds.u0 - h(ds.xk[ds.period], ds);
   ret(ds.udim) = q(ds.xk[ds.period], ds);
-  ret(ds.udim + 1) = (ds.dphidx[0] + I).determinant();
+  ret(ds.udim + 1) = ds.chara_poly.determinant();
 
   return ret;
 }
 
 double det_derivative(const Eigen::MatrixXd &A, const Eigen::MatrixXd &dA,
                       const dynamical_system &ds) {
-  Eigen::MatrixXd temp(ds.xdim, ds.xdim);
+  Eigen::MatrixXd temp(ds.udim, ds.udim);
   double ret = 0;
 
-  for (int i = 0; i < ds.xdim; i++) {
+  for (int i = 0; i < ds.udim; i++) {
     temp = A;
     temp.col(i) = dA.col(i);
     ret += temp.determinant();
@@ -156,15 +163,14 @@ double det_derivative(const Eigen::MatrixXd &A, const Eigen::MatrixXd &dA,
 
 Eigen::MatrixXd jac_newton(const dynamical_system &ds) {
   Eigen::MatrixXd ret(ds.udim + ds.period + 1, ds.udim + ds.period + 1);
-  Eigen::MatrixXd Iu = Eigen::MatrixXd::Identity(ds.udim, ds.udim);
-  Eigen::MatrixXd I = Eigen::MatrixXd::Identity(ds.xdim, ds.xdim);
+  Eigen::MatrixXd I = Eigen::MatrixXd::Identity(ds.udim, ds.udim);
 
-  ret(Eigen::seqN(0, ds.udim), Eigen::seqN(0, ds.udim)) = Iu - ds.dTldu;
-  ret(Eigen::seqN(0, ds.udim), ds.udim) = dTldtau(ds);
-  ret(Eigen::seqN(0, ds.udim), ds.udim + 1) = dTldlambda(ds);
-  ret(ds.udim, Eigen::seqN(0, ds.udim)) = dqdu(ds);
-  ret(ds.udim, ds.udim) = dqdtau(ds)(0, 0);
-  ret(ds.udim, ds.udim + 1) = dqdlambda(ds)(0, 0);
+  ret(Eigen::seqN(0, ds.udim), Eigen::seqN(0, ds.udim)) = I - ds.dTldu;
+  ret(Eigen::seqN(0, ds.udim), ds.udim) = ds.dTldtau;
+  ret(Eigen::seqN(0, ds.udim), ds.udim + 1) = ds.dTldlambda;
+  ret(ds.udim, Eigen::seqN(0, ds.udim)) = ds.dqdu;
+  ret(ds.udim, ds.udim) = ds.dqdtau(0, 0);
+  ret(ds.udim, ds.udim + 1) = ds.dqdlambda(0, 0);
   ret(ds.udim + 1, Eigen::seqN(0, ds.udim)) = dchidu(ds);
   ret(ds.udim + 1, ds.udim) = dchidtau(ds);
   ret(ds.udim + 1, ds.udim + 1) = dchidlambda(ds);
@@ -276,30 +282,43 @@ Eigen::VectorXd dqdlambda(const dynamical_system &ds) {
   return ds.dqdx * ds.dphidlambda[0];
 }
 
-Eigen::MatrixXd dchidu(const dynamical_system &ds) {
-  Eigen::MatrixXd ret(1, ds.udim);
-
-  for (int i = 0; i < ds.xdim; i++) {
+std::vector<Eigen::MatrixXd> dTldudu(const dynamical_system &ds) {
+  std::vector<Eigen::MatrixXd> ret = std::vector<Eigen::MatrixXd>(
+      ds.udim, Eigen::MatrixXd::Zero(ds.udim, ds.udim));
+  for (int i = 0; i < ds.udim; i++) {
     if (i != ds.p_index) {
       if (i < ds.p_index) {
-        ret(0, i) = det_derivative(ds.chara_poly, ds.dphidxdx[0][i], ds);
-        // std::cout << ds.chara_poly << std::endl;
-        // exit(0);
+        ret[i] = ds.dhdx * ds.dphidxdx[0][i] * ds.dh_invdu;
       } else {
-        ret(0, i - 1) = det_derivative(ds.chara_poly, ds.dphidxdx[0][i], ds);
+        ret[i - 1] = ds.dhdx * ds.dphidxdx[0][i] * ds.dh_invdu;
       }
     }
   }
+  return ret;
+}
 
+Eigen::MatrixXd dTldudtau(const dynamical_system &ds) {
+  return ds.dhdx * ds.dphidxdtau[0] * ds.dh_invdu;
+}
+
+Eigen::MatrixXd dTldudlambda(const dynamical_system &ds) {
+  return ds.dhdx * ds.dphidxdlambda[0] * ds.dh_invdu;
+}
+
+Eigen::MatrixXd dchidu(const dynamical_system &ds) {
+  Eigen::MatrixXd ret(1, ds.udim);
+  for (int i = 0; i < ds.udim; i++) {
+    ret(0, i) = det_derivative(ds.chara_poly, ds.dTldudu[i], ds);
+  }
   return ret;
 }
 
 double dchidtau(const dynamical_system &ds) {
-  return det_derivative(ds.chara_poly, ds.dphidxdtau[0], ds);
+  return det_derivative(ds.chara_poly, ds.dTldudtau, ds);
 }
 
 double dchidlambda(const dynamical_system &ds) {
-  return det_derivative(ds.chara_poly, ds.dphidxdlambda[0], ds);
+  return det_derivative(ds.chara_poly, ds.dTldudlambda, ds);
 }
 
 void removeRow(Eigen::MatrixXd &matrix, unsigned int rowToRemove) {

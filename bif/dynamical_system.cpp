@@ -1,7 +1,7 @@
 #include "dynamical_system.hpp"
 
 dynamical_system::dynamical_system(nlohmann::json json) {
-  xdim = json["fixed"].size();
+  xdim = json["x0"].size();
   udim = xdim - 1;
 
   p_index = json["p_index"];
@@ -26,7 +26,7 @@ dynamical_system::dynamical_system(nlohmann::json json) {
   explode = json["explode"];
 
   /* These json array should be casted to the STL container type*/
-  std::vector<double> fixed_arr = json["fixed"];
+  std::vector<double> fixed_arr = json["x0"];
   Eigen::Map<Eigen::VectorXd> x0(fixed_arr.data(), fixed_arr.size());
   this->x0 = x0;
   this->u0 = h(this->x0, *this);
@@ -47,14 +47,17 @@ dynamical_system::dynamical_system(nlohmann::json json) {
   dphidlambda =
       std::vector<Eigen::VectorXd>(period, Eigen::VectorXd::Zero(xdim));
   dphidxdx = std::vector<std::vector<Eigen::MatrixXd>>(
-      period, std::vector<Eigen::MatrixXd>(xdim, Eigen::MatrixXd::Zero(xdim, xdim)));
-  dphidxdlambda = 
+      period,
+      std::vector<Eigen::MatrixXd>(xdim, Eigen::MatrixXd::Zero(xdim, xdim)));
+  dphidxdtau =
       std::vector<Eigen::MatrixXd>(period, Eigen::MatrixXd::Zero(xdim, xdim));
-  dphidxdtau = 
+  dphidxdlambda =
       std::vector<Eigen::MatrixXd>(period, Eigen::MatrixXd::Zero(xdim, xdim));
 
   size_dphidx = xdim * xdim;
   size_dphidlambda = xdim;
   size_dphidxdx = xdim * xdim * xdim;
   size_dphidxdlambda = xdim * xdim;
+
+  dTldudu = std::vector<Eigen::MatrixXd>(xdim, Eigen::MatrixXd::Zero(xdim, xdim));
 }

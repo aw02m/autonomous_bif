@@ -53,7 +53,7 @@ def keyin(event, s, data, tau, fixed):
         sys.exit()
     elif event.key == 'w':
         # data.dict['fixed'] = [[] if i == [] else i.ravel().tolist() for i in fixed]
-        data.dict['fixed'] = list(fixed)
+        data.dict['x0'] = list(fixed)
         data.dict['tau'] = tau
         jd = json.dumps(data.dict)
         # print(jd)
@@ -151,7 +151,7 @@ def main():
 
     while running:
         state = solve_ivp(func, (0, duration), state0,
-                          method='RK45', args=(data,),
+                          method='DOP853', args=(data,),
                           events=q, max_step=tick, vectorized=True)
         # reset termination and direction settings
         # for i in range(len(poincare)):
@@ -182,7 +182,7 @@ def main():
                      state.y_events[0][:, data.dict['axis'][1]],
                      'o', markersize=2, color="red")
             state = solve_ivp(func, (0, tick), state.y[:, -1],
-                              method='RK45', args=(data,),
+                              method='DOP853', args=(data,),
                               max_step=tick, vectorized=True)
             period_buf = tick
         else:

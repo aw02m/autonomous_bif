@@ -47,10 +47,10 @@ public:
   std::vector<Eigen::MatrixXd> dfdx;
 
   std::vector<Eigen::MatrixXd> dphidx;
-  std::vector<std::vector<Eigen::MatrixXd>> dphidxdx;
   std::vector<Eigen::VectorXd> dphidlambda;
-  std::vector<Eigen::MatrixXd> dphidxdlambda;
+  std::vector<std::vector<Eigen::MatrixXd>> dphidxdx;
   std::vector<Eigen::MatrixXd> dphidxdtau;
+  std::vector<Eigen::MatrixXd> dphidxdlambda;
 
   unsigned int size_dphidx;
   unsigned int size_dphidlambda;
@@ -60,6 +60,14 @@ public:
   Eigen::MatrixXd chara_poly;
 
   Eigen::MatrixXd dTldu;
+  Eigen::VectorXd dTldtau;
+  Eigen::VectorXd dTldlambda;
+  Eigen::MatrixXd dqdu;
+  Eigen::MatrixXd dqdtau;
+  Eigen::MatrixXd dqdlambda;
+  std::vector<Eigen::MatrixXd> dTldudu;
+  Eigen::MatrixXd dTldudtau;
+  Eigen::MatrixXd dTldudlambda;
 };
 
 #endif

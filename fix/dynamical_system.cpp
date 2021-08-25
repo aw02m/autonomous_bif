@@ -1,7 +1,7 @@
 #include "dynamical_system.hpp"
 
 dynamical_system::dynamical_system(nlohmann::json json) {
-  xdim = json["fixed"].size();
+  xdim = json["x0"].size();
   udim = xdim - 1;
 
   p_index = json["p_index"];
@@ -26,7 +26,7 @@ dynamical_system::dynamical_system(nlohmann::json json) {
   explode = json["explode"];
 
   /* These json array should be casted to the STL container type*/
-  std::vector<double> fixed_arr = json["fixed"];
+  std::vector<double> fixed_arr = json["x0"];
   Eigen::Map<Eigen::VectorXd> x0(fixed_arr.data(), fixed_arr.size());
   this->x0 = x0;
   this->u0 = h(this->x0, *this);
@@ -40,8 +40,6 @@ dynamical_system::dynamical_system(nlohmann::json json) {
 
   xk = std::vector<Eigen::VectorXd>(period + 1, Eigen::VectorXd::Zero(xdim));
   fk = std::vector<Eigen::VectorXd>(period, Eigen::VectorXd::Zero(xdim));
-  dfdx =
-      std::vector<Eigen::MatrixXd>(period, Eigen::MatrixXd::Zero(xdim, xdim));
   dphidx =
       std::vector<Eigen::MatrixXd>(period, Eigen::MatrixXd::Zero(xdim, xdim));
 }

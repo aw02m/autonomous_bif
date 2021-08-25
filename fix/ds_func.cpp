@@ -1,9 +1,9 @@
 #include "ds_func.hpp"
 
 void store_constant_state(dynamical_system &ds) {
-  ds.dqdx = dqdx(ds);
   ds.dhdx = dhdx(ds);
   ds.dh_invdu = dh_invdu(ds);
+  ds.dqdx = dqdx(ds);
 }
 
 void store_state(const Eigen::VectorXd &vp, dynamical_system &ds) {
@@ -26,14 +26,12 @@ void store_state(const Eigen::VectorXd &vp, dynamical_system &ds) {
   }
 
   ds.xk[1] = sol(Eigen::seqN(0, ds.xdim));
+  ds.fk[0] = f(0, ds.xk[1], ds);
 
   Eigen::MatrixXd dphidx;
   dphidx = sol(Eigen::seqN(ds.xdim, ds.xdim * ds.xdim));
   dphidx.resize(ds.xdim, ds.xdim);
   ds.dphidx[0] = dphidx;
-
-  ds.fk[0] = f(0, ds.xk[1], ds);
-  ds.dfdx[0] = dfdx(ds.xk[1], ds);
 
   ds.dTldu = dTldu(ds);
 }

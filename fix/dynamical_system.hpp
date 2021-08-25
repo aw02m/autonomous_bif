@@ -44,12 +44,7 @@ public:
   Eigen::MatrixXd dh_invdu;
   Eigen::MatrixXd dqdx;
 
-  std::vector<Eigen::MatrixXd> dfdx;
-
   std::vector<Eigen::MatrixXd> dphidx;
-  std::vector<std::vector<Eigen::MatrixXd>> dphidxdx;
-  std::vector<Eigen::VectorXd> dphidlambda;
-  std::vector<Eigen::MatrixXd> dphidxdlambda;
 
   Eigen::MatrixXd dTldu;
 };
