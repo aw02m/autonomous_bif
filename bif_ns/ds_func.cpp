@@ -145,7 +145,7 @@ Eigen::VectorXd variational_eq(double t, const Eigen::VectorXd &x,
 }
 
 Eigen::VectorXd func_newton(const dynamical_system &ds) {
-  Eigen::VectorXd ret(ds.udim + ds.period + 1 + 1);
+  Eigen::VectorXd ret(ds.udim + ds.period + 2);
   Eigen::dcomplex chi(0, 0);
 
   ret(Eigen::seqN(0, ds.udim)) = h(ds.xk[ds.period], ds) - ds.u0;
@@ -173,7 +173,7 @@ Eigen::dcomplex det_derivative(const Eigen::MatrixXcd &A,
 }
 
 Eigen::MatrixXd jac_newton(const dynamical_system &ds) {
-  Eigen::MatrixXd ret(ds.udim + ds.period + 1 + 1, ds.udim + ds.period + 1 + 1);
+  Eigen::MatrixXd ret(ds.udim + ds.period + 2, ds.udim + ds.period + 2);
   Eigen::MatrixXd I = Eigen::MatrixXd::Identity(ds.udim, ds.udim);
 
   Eigen::MatrixXcd dchidu_buf(1, ds.udim);

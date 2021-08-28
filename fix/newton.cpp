@@ -10,6 +10,7 @@ void newton(dynamical_system &ds) {
   Eigen::MatrixXd J(ds.xdim, ds.xdim);
   Eigen::VectorXcd eigvals(ds.xdim);
   double norm;
+  Eigen::IOFormat Comma(8, 0, ", ", "\n", "[", "]");
 
   store_constant_state(ds);
 
@@ -32,9 +33,12 @@ void newton(dynamical_system &ds) {
                   << std::endl;
         std::cout << p << " : converged (iter = " << i + 1 << ", ";
         std::cout << "time = " << msec << "[msec])" << std::endl;
-        std::cout << "params : " << ds.params.transpose() << std::endl;
-        std::cout << "u0     : " << vn(Eigen::seqN(0, ds.udim)).transpose()
+        std::cout << "params : " << ds.params.transpose().format(Comma)
                   << std::endl;
+        std::cout
+            << "x0     : "
+            << h_inv(vn(Eigen::seqN(0, ds.udim)), ds).transpose().format(Comma)
+            << std::endl;
         std::cout << "tau    : " << vn(ds.udim) << std::endl;
         std::cout << "(Re(μ), Im(μ)), abs(μ), arg(μ) :" << std::endl;
         for (int k = 0; k < ds.udim; k++) {
