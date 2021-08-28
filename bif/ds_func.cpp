@@ -1,4 +1,8 @@
 #include "ds_func.hpp"
+#include "ds_derivatives.hpp"
+#include "dynamical_system.hpp"
+#include "eigensolver.hpp"
+#include "runge_kutta.hpp"
 
 void store_constant_state(dynamical_system &ds) {
   ds.dhdx = dhdx(ds);
@@ -69,7 +73,9 @@ void store_state(const Eigen::VectorXd &vp, dynamical_system &ds) {
   ds.dTldudtau = dTldudtau(ds);
   ds.dTldudlambda = dTldudlambda(ds);
 
-  ds.chara_poly = ds.dTldu + Eigen::MatrixXd::Identity(ds.udim, ds.udim);
+  ds.eigvals = eigenvalues(ds);
+
+  ds.chara_poly = ds.dTldu - ds.mu * Eigen::MatrixXd::Identity(ds.udim, ds.udim);
 }
 
 Eigen::VectorXd variational_eq(double t, const Eigen::VectorXd &x,
@@ -140,7 +146,7 @@ Eigen::VectorXd func_newton(const dynamical_system &ds) {
   Eigen::VectorXd ret(ds.udim + ds.period + 1);
   Eigen::MatrixXd I = Eigen::MatrixXd::Identity(ds.xdim, ds.xdim);
 
-  ret(Eigen::seqN(0, ds.udim)) = ds.u0 - h(ds.xk[ds.period], ds);
+  ret(Eigen::seqN(0, ds.udim)) = h(ds.xk[ds.period], ds) - ds.u0;
   ret(ds.udim) = q(ds.xk[ds.period], ds);
   ret(ds.udim + 1) = ds.chara_poly.determinant();
 
@@ -165,7 +171,7 @@ Eigen::MatrixXd jac_newton(const dynamical_system &ds) {
   Eigen::MatrixXd ret(ds.udim + ds.period + 1, ds.udim + ds.period + 1);
   Eigen::MatrixXd I = Eigen::MatrixXd::Identity(ds.udim, ds.udim);
 
-  ret(Eigen::seqN(0, ds.udim), Eigen::seqN(0, ds.udim)) = I - ds.dTldu;
+  ret(Eigen::seqN(0, ds.udim), Eigen::seqN(0, ds.udim)) = ds.dTldu - I;
   ret(Eigen::seqN(0, ds.udim), ds.udim) = ds.dTldtau;
   ret(Eigen::seqN(0, ds.udim), ds.udim + 1) = ds.dTldlambda;
   ret(ds.udim, Eigen::seqN(0, ds.udim)) = ds.dqdu;

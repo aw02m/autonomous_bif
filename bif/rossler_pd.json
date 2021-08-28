@@ -42,6 +42,8 @@
     "rkf_tol": 2.0,
     "rkf_false_iter": 100,
     "_comment_Newton_param": "dif_strip is used for numerical differentiation(if it's enabled)",
+    "sigma": -1,
+    "omega": 0,
     "inc_param": 1,
     "var_param": 0,
     "delta_inc": 0.01,

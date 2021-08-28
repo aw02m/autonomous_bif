@@ -2,6 +2,7 @@
 #define DYNAMICAL_SYSTEM_HPP_
 
 #include "sys_common.hpp"
+#include <nlohmann/json.hpp>
 
 class dynamical_system {
 public:
@@ -68,6 +69,9 @@ public:
   std::vector<Eigen::MatrixXd> dTldudu;
   Eigen::MatrixXd dTldudtau;
   Eigen::MatrixXd dTldudlambda;
+
+  Eigen::MatrixXcd eigvals;
+  double mu;
 };
 
 #endif

@@ -1,4 +1,5 @@
 #include "ds_derivatives.hpp"
+#include "dynamical_system.hpp"
 
 Eigen::VectorXd f(double t, const Eigen::VectorXd &x,
                   const dynamical_system &ds) {

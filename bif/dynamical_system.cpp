@@ -1,4 +1,5 @@
 #include "dynamical_system.hpp"
+#include "ds_func.hpp"
 
 dynamical_system::dynamical_system(nlohmann::json json) {
   xdim = json["x0"].size();
@@ -60,4 +61,5 @@ dynamical_system::dynamical_system(nlohmann::json json) {
   size_dphidxdlambda = xdim * xdim;
 
   dTldudu = std::vector<Eigen::MatrixXd>(xdim, Eigen::MatrixXd::Zero(xdim, xdim));
+  mu = json["sigma"];
 }

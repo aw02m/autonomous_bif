@@ -1,5 +1,6 @@
 #include "newton.hpp"
-#include <chrono>
+#include "ds_func.hpp"
+#include "dynamical_system.hpp"
 
 void newton(dynamical_system &ds) {
   Eigen::VectorXd vp(ds.xdim + 1);
@@ -35,8 +36,7 @@ void newton(dynamical_system &ds) {
         std::cout << "u0     : " << vn(Eigen::seqN(0, ds.udim)).transpose()
                   << std::endl;
         std::cout << "tau    : " << vn(ds.udim) << std::endl;
-        eigvals =
-            Eigen::EigenSolver<Eigen::MatrixXd>(ds.dTldu).eigenvalues();
+        eigvals = Eigen::EigenSolver<Eigen::MatrixXd>(ds.dTldu).eigenvalues();
         std::cout << "(Re(μ), Im(μ)), abs(μ), arg(μ) :" << std::endl;
         for (int k = 0; k < ds.udim; k++) {
           std::cout << eigvals(k) << ", ";

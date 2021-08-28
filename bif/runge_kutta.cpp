@@ -1,4 +1,5 @@
 #include "runge_kutta.hpp"
+#include "dynamical_system.hpp"
 
 // Runge-Kutta-Fehlberg Method (with automatic step "h" control)
 Eigen::VectorXd

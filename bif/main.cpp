@@ -1,4 +1,6 @@
-#include "sys_common.hpp"
+#include "dynamical_system.hpp"
+#include "newton.hpp"
+#include <nlohmann/json.hpp>
 
 int main(int argc, char *argv[]) {
   if (argc != 2) {
