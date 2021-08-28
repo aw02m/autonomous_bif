@@ -45,11 +45,34 @@ public:
   Eigen::MatrixXd dh_invdu;
   Eigen::MatrixXd dqdx;
 
+  std::vector<Eigen::MatrixXd> dfdx;
+
   std::vector<Eigen::MatrixXd> dphidx;
+  std::vector<Eigen::VectorXd> dphidlambda;
+  std::vector<std::vector<Eigen::MatrixXd>> dphidxdx;
+  std::vector<Eigen::MatrixXd> dphidxdtau;
+  std::vector<Eigen::MatrixXd> dphidxdlambda;
+
+  unsigned int size_dphidx;
+  unsigned int size_dphidlambda;
+  unsigned int size_dphidxdx;
+  unsigned int size_dphidxdlambda;
+
+  Eigen::MatrixXcd chara_poly;
 
   Eigen::MatrixXd dTldu;
+  Eigen::VectorXd dTldtau;
+  Eigen::VectorXd dTldlambda;
+  Eigen::MatrixXd dqdu;
+  Eigen::MatrixXd dqdtau;
+  Eigen::MatrixXd dqdlambda;
+  std::vector<Eigen::MatrixXd> dTldudu;
+  Eigen::MatrixXd dTldudtau;
+  Eigen::MatrixXd dTldudlambda;
 
   Eigen::VectorXcd eigvals;
+  Eigen::dcomplex mu;
+  double theta;
 };
 
 #endif

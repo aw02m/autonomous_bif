@@ -1,4 +1,8 @@
 #include "ds_func.hpp"
+#include "ds_derivatives.hpp"
+#include "dynamical_system.hpp"
+#include "eigensolver.hpp"
+#include "runge_kutta.hpp"
 
 void store_constant_state(dynamical_system &ds) {
   ds.dhdx = dhdx(ds);
@@ -10,20 +14,21 @@ void store_state(const Eigen::VectorXd &vp, dynamical_system &ds) {
   Eigen::VectorXd u = vp(Eigen::seqN(0, ds.udim));
   double tau = vp(ds.udim);
   Eigen::MatrixXd I = Eigen::MatrixXd::Identity(ds.xdim, ds.xdim);
-  Eigen::VectorXd init_state(ds.xdim + ds.xdim * ds.xdim);
+  Eigen::VectorXd sol(ds.xdim + ds.xdim * ds.xdim);
 
   ds.u0 = u;
   ds.tauk(0) = tau;
   ds.xk[0] = h_inv(u, ds);
 
   I.resize(I.cols() * I.rows(), 1);
-  init_state << ds.xk[0], I;
-  Eigen::VectorXd sol;
+  sol << ds.xk[0], I;
   if (ds.use_classic_rk != false) {
-    sol = integrate_rk45(variational_eq, 0, init_state, ds.tauk(0), ds);
+    sol = integrate_rk45(variational_eq, 0, sol, ds.tauk(0), ds);
   } else {
-    sol = integrate(variational_eq, 0, init_state, ds.tauk(0), ds);
+    sol = integrate(variational_eq, 0, sol, ds.tauk(0), ds);
   }
+
+  // debug_exit(sol);
 
   ds.xk[1] = sol(Eigen::seqN(0, ds.xdim));
   ds.fk[0] = f(0, ds.xk[1], ds);
@@ -34,12 +39,14 @@ void store_state(const Eigen::VectorXd &vp, dynamical_system &ds) {
   ds.dphidx[0] = dphidx;
 
   ds.dTldu = dTldu(ds);
+
+  ds.eigvals = eigenvalues(ds);
 }
 
 Eigen::VectorXd func_newton(const dynamical_system &ds) {
   Eigen::VectorXd ret(ds.udim + ds.period);
 
-  ret(Eigen::seqN(0, ds.udim)) = ds.u0 - h(ds.xk[ds.period], ds);
+  ret(Eigen::seqN(0, ds.udim)) = h(ds.xk[ds.period], ds) - ds.u0;
   ret(ds.udim) = q(ds.xk[ds.period], ds);
 
   return ret;
@@ -49,7 +56,7 @@ Eigen::MatrixXd jac_newton(const dynamical_system &ds) {
   Eigen::MatrixXd ret(ds.udim + ds.period, ds.udim + ds.period);
   Eigen::MatrixXd I = Eigen::MatrixXd::Identity(ds.udim, ds.udim);
 
-  ret(Eigen::seqN(0, ds.udim), Eigen::seqN(0, ds.udim)) = I - ds.dTldu;
+  ret(Eigen::seqN(0, ds.udim), Eigen::seqN(0, ds.udim)) = ds.dTldu - I;
   ret(Eigen::seqN(0, ds.udim), ds.udim) = dTldtau(ds);
   ret(ds.udim, Eigen::seqN(0, ds.udim)) = dqdu(ds);
   ret(ds.udim, ds.udim) = dqdtau(ds)(0, 0);
@@ -140,6 +147,7 @@ Eigen::VectorXd variational_init1(double t, const Eigen::VectorXd &phi,
                                   const dynamical_system &ds) {
   Eigen::MatrixXd ret = dfdx(phi, ds) * dphidx;
   ret.resize(ds.xdim * ds.xdim, 1);
+  Eigen::MatrixXd test(3,3);
   return ret;
 }
 

@@ -5,7 +5,7 @@ Eigen::VectorXd f(double t, const Eigen::VectorXd &x,
                   const dynamical_system &ds) {
   Eigen::VectorXd ret(ds.xdim);
 
-  // rossler
+  // // rossler
   // ret(0) = -x(1) - x(2);
   // ret(1) = x(0) + ds.params(0) * x(1);
   // ret(2) = ds.params(1) * x(0) - ds.params(2) * x(2) + x(0) * x(2);
@@ -26,7 +26,7 @@ Eigen::VectorXd f(double t, const Eigen::VectorXd &x,
 Eigen::MatrixXd dfdx(const Eigen::VectorXd &x, const dynamical_system &ds) {
   Eigen::MatrixXd ret(ds.xdim, ds.xdim);
 
-  // rossler
+  // // rossler
   // ret(0, 0) = 0.0;
   // ret(0, 1) = -1.0;
   // ret(0, 2) = -1.0;
@@ -60,6 +60,74 @@ Eigen::MatrixXd dfdx(const Eigen::VectorXd &x, const dynamical_system &ds) {
   ret(2, 0) = 0.2 * x(0) + 1.1 * x(2);
   ret(2, 1) = -1.0;
   ret(2, 2) = 1.1 * x(0);
+
+  return ret;
+}
+
+Eigen::VectorXd dfdlambda(const Eigen::VectorXd &x,
+                          const dynamical_system &ds) {
+  Eigen::VectorXd ret = Eigen::VectorXd::Zero(ds.xdim);
+
+  // rossler
+  // switch (ds.var_param) {
+  // case 0:
+  //   ret(1) = x(1);
+  //   break;
+  // case 1:
+  //   ret(2) = x(0);
+  //   break;
+  // case 2:
+  //   ret(2) = -x(2);
+  //   break;
+  // }
+
+  // sprott
+  switch (ds.var_param) {
+  case 0:
+    ret(2) = 1;
+    break;
+  case 1:
+    ret(1) = 1;
+  }
+
+  return ret;
+}
+
+std::vector<Eigen::MatrixXd> dfdxdx(const Eigen::VectorXd &x,
+                                    const dynamical_system &ds) {
+  std::vector<Eigen::MatrixXd> ret(ds.xdim,
+                                   Eigen::MatrixXd::Zero(ds.xdim, ds.xdim));
+
+  // // rossler
+  // ret[0](2, 2) = 1;
+  // ret[2](2, 0) = 1;
+  
+  // sprott
+  ret[0](2, 0) = 0.2;
+  ret[0](2, 2) = 1.1;
+  ret[2](2, 0) = 1.1;
+
+  return ret;
+}
+
+Eigen::MatrixXd dfdxdlambda(const Eigen::VectorXd &x,
+                            const dynamical_system &ds) {
+  Eigen::MatrixXd ret = Eigen::MatrixXd::Zero(ds.xdim, ds.xdim);
+
+  // // rossler
+  // switch (ds.var_param) {
+  // case 0:
+  //   ret(1, 1) = 1;
+  //   break;
+  // case 1:
+  //   ret(2, 0) = 1;
+  //   break;
+  // case 2:
+  //   ret(2, 2) = -1;
+  //   break;
+  // }
+
+  // sprott -> nothing (all elements are zero)  
 
   return ret;
 }

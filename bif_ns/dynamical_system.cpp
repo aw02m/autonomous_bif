@@ -41,6 +41,27 @@ dynamical_system::dynamical_system(nlohmann::json json) {
 
   xk = std::vector<Eigen::VectorXd>(period + 1, Eigen::VectorXd::Zero(xdim));
   fk = std::vector<Eigen::VectorXd>(period, Eigen::VectorXd::Zero(xdim));
+  dfdx =
+      std::vector<Eigen::MatrixXd>(period, Eigen::MatrixXd::Zero(xdim, xdim));
   dphidx =
       std::vector<Eigen::MatrixXd>(period, Eigen::MatrixXd::Zero(xdim, xdim));
+  dphidlambda =
+      std::vector<Eigen::VectorXd>(period, Eigen::VectorXd::Zero(xdim));
+  dphidxdx = std::vector<std::vector<Eigen::MatrixXd>>(
+      period,
+      std::vector<Eigen::MatrixXd>(xdim, Eigen::MatrixXd::Zero(xdim, xdim)));
+  dphidxdtau =
+      std::vector<Eigen::MatrixXd>(period, Eigen::MatrixXd::Zero(xdim, xdim));
+  dphidxdlambda =
+      std::vector<Eigen::MatrixXd>(period, Eigen::MatrixXd::Zero(xdim, xdim));
+
+  size_dphidx = xdim * xdim;
+  size_dphidlambda = xdim;
+  size_dphidxdx = xdim * xdim * xdim;
+  size_dphidxdlambda = xdim * xdim;
+
+  dTldudu = std::vector<Eigen::MatrixXd>(xdim, Eigen::MatrixXd::Zero(xdim, xdim));
+
+  mu = Eigen::dcomplex(json["sigma"], json["omega"]);
+  theta = std::arg(mu);
 }
