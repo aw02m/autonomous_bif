@@ -1,6 +1,4 @@
 #include "mainwindow.h"
-#include "ds_derivatives.hpp"
-#include "runge_kutta.cpp"
 #include "ui_mainwindow.h"
 #include <QDebug>
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
