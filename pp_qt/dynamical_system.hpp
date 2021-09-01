@@ -18,6 +18,7 @@ public:
   unsigned int p_index;
   double p_place;
   double direction;
+  unsigned int period;
 
   // RK param
   double tick;

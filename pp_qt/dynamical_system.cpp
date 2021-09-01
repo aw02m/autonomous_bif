@@ -32,7 +32,8 @@ dynamical_system::dynamical_system(const std::string &json_location) {
 
   p_index = json["p_index"];
   p_place = json["p_place"];
-  direction = json["p_place"];
+  direction = json["direction"];
+  period = json["period"];
 
   tick = json["tick"];
   axis = json["axis"].get<std::vector<unsigned int>>();
@@ -78,8 +79,6 @@ void dynamical_system::integrate(double t0, const Eigen::VectorXd &x,
   bool flag = true;
   hit_section = false;
 
-  QCPCsol << QCPCurveData(t, state(axis[0]), state(axis[1]));
-
   while (flag) {
     k.col(0) = h * func(t0, state);
     temp = state + k.col(0) * 0.25;
@@ -114,7 +113,7 @@ void dynamical_system::integrate(double t0, const Eigen::VectorXd &x,
           state = next_state;
           x0 = state;
           t += h;
-          QCPCsol << QCPCurveData(t, state(axis[0]), state(axis[1]));
+          QCPCsol.append(QCPCurveData(t, state(axis[0]), state(axis[1])));
           flag = false;
         }
         if (qprod >= 0) {
@@ -125,7 +124,9 @@ void dynamical_system::integrate(double t0, const Eigen::VectorXd &x,
         next_state = state;
         continue;
       }
-      if (qprod < 0 && next_state(p_index) - state(p_index) < 0 &&
+      if (qprod < 0 &&
+          (direction < 0 ? next_state(p_index) - state(p_index)
+                         : state(p_index) - next_state(p_index)) < 0 &&
           (next_state - state).norm() > 1.0e-02) {
         hit_section = true;
         h /= 2;
@@ -133,8 +134,8 @@ void dynamical_system::integrate(double t0, const Eigen::VectorXd &x,
         continue;
       }
       state = next_state;
-      QCPCsol << QCPCurveData(t, state(axis[0]), state(axis[1]));
       t += h;
+      QCPCsol.append(QCPCurveData(t, state(axis[0]), state(axis[1])));
     }
 
     if (loop_counter++ > rkf_false_iter) {
@@ -169,7 +170,7 @@ void dynamical_system::integrate(double t0, const Eigen::VectorXd &x,
     }
   }
   last_state = state;
-  tau += t;
+  // tau += t;
 }
 
 bool dynamical_system::is_hit_section() {

@@ -14,9 +14,6 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow),
       ds(QApplication::arguments().at(1).toStdString()) {
-
-  // ds = dynamical_system(QApplication::arguments().at(1).toStdString());
-
   ui->setupUi(this);
   setGeometry(400, 250, 768, 768);
 
@@ -34,16 +31,13 @@ void MainWindow::ppcalc(QCustomPlot *customPlot) {
   trajectory = new QCPCurve(customPlot->xAxis, customPlot->yAxis);
   poincare = new QCPGraph(customPlot->xAxis, customPlot->yAxis);
 
-  // QVector<QCPCurveData> sol = integrate(f, 0, ds.x0, ds.tick, ds);
-  // trajectory->data()->set(sol, true);
-
   trajectory->setPen(QPen(Qt::blue));
   poincare->setLineStyle(QCPGraph::lsNone);
   poincare->setScatterStyle(QCPScatterStyle::ssDisc);
   poincare->setPen(QPen(QBrush(Qt::red), 0.1));
 
-  customPlot->xAxis->setLabel("x");
-  customPlot->yAxis->setLabel("y");
+  customPlot->xAxis->setLabel("axis[0]");
+  customPlot->yAxis->setLabel("axis[1]");
   customPlot->xAxis->setRange(ds.xrange[0], ds.xrange[1]);
   customPlot->yAxis->setRange(ds.yrange[0], ds.yrange[1]);
 
@@ -58,10 +52,12 @@ void MainWindow::ppcalc(QCustomPlot *customPlot) {
 void MainWindow::ppSlot() {
   double secs =
       QCPAxisTickerDateTime::dateTimeToKey(QDateTime::currentDateTime());
+  static unsigned int period_counter = 1;
+  static double tau = 0;
 
   ds.integrate(0, ds.last_state, ds.tick);
   trajectory->data()->set(ds.QCPCsol, true);
-  // ds.tau += ds.QCPCsol.last().t;
+  tau += ds.QCPCsol.back().t;
   unsigned int sol_size = ds.QCPCsol.size();
   if (sol_size >= ds.max_plot) {
     ds.QCPCsol.remove(0, sol_size - ds.max_plot);
@@ -71,8 +67,11 @@ void MainWindow::ppSlot() {
     ds.QCPGpoincare << QCPGraphData(ds.last_state(ds.axis[0]),
                                     ds.last_state(ds.axis[1]));
     poincare->data()->set(ds.QCPGpoincare, true);
-    std::cout << ds.tau << std::endl;
-    ds.tau = 0;
+    if (period_counter++ > ds.period - 1) {
+      ds.tau = tau;
+      tau = 0;
+      period_counter = 1;
+    }
   }
   unsigned int poincare_size = ds.QCPGpoincare.size();
   if (poincare_size >= ds.max_poincare_plot) {
@@ -106,6 +105,7 @@ void MainWindow::mousePress(QMouseEvent *event) {
         ui->customPlot->yAxis->pixelToCoord(event->pos().y());
     ds.QCPCsol.clear();
     ds.QCPGpoincare.clear();
+    ds.tau = 0;
   }
 }
 
@@ -140,9 +140,34 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
               << std::endl;
     break;
   case Qt::Key_Space:
-    std::cout << "state : " << ds.x0.transpose().format(Comma)
-              << std::endl;
+    std::cout << "state : " << ds.x0.transpose().format(Comma) << std::endl;
     std::cout << "param : " << ds.params.transpose().format(Comma) << std::endl;
+    std::cout << "tau   : " << ds.tau << " (" << ds.period << "-period)"
+              << std::endl;
+    break;
+  case Qt::Key_X:
+    if (ds.axis[0] == ds.xdim - 1) {
+      ds.axis[0] = 0;
+    } else {
+      ds.axis[0]++;
+    }
+    std::cout << "x-axis changed : [" << ds.axis[0] << ", " << ds.axis[1] << "]"
+              << std::endl;
+    ds.QCPCsol.clear();
+    ds.QCPGpoincare.clear();
+    ds.tau = 0;
+    break;
+  case Qt::Key_Y:
+    if (ds.axis[1] == ds.xdim - 1) {
+      ds.axis[1] = 0;
+    } else {
+      ds.axis[1]++;
+    }
+    std::cout << "y-axis changed : [" << ds.axis[0] << ", " << ds.axis[1] << "]"
+              << std::endl;
+    ds.QCPCsol.clear();
+    ds.QCPGpoincare.clear();
+    ds.tau = 0;
     break;
   case Qt::Key_Q:
     QApplication::exit();
