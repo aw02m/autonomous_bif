@@ -32,6 +32,8 @@ private:
   QCPCurve *trajectory;
   QCPGraph *poincare;
   dynamical_system ds;
+  bool show_trajectory;
+  bool show_poincare;
 
 protected:
   void keyPressEvent(QKeyEvent *event);

@@ -128,7 +128,7 @@ void dynamical_system::integrate(double t0, const Eigen::VectorXd &x,
       if (qprod < 0 &&
           (direction < 0 ? next_state(p_index) - state(p_index)
                          : state(p_index) - next_state(p_index)) < 0 &&
-          (next_state - state).norm() > 1.0e-02) {
+          (next_state - state).norm() > 0.1) {
         hit_section = true;
         next_state = state;
         continue;

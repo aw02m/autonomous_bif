@@ -21,6 +21,8 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::ppsetup() {
   ppcalc(ui->customPlot);
   setWindowTitle("Phase Portrait : pp");
+  show_trajectory = true;
+  show_poincare = true;
   statusBar()->clearMessage();
   ui->customPlot->replot();
 }
@@ -58,7 +60,8 @@ void MainWindow::ppSlot() {
   } else {
     ds.integrate(0, ds.last_state, ds.tick);
   }
-  trajectory->data()->set(ds.QCPCsol, true);
+  if (show_trajectory)
+    trajectory->data()->set(ds.QCPCsol, true);
   tau += ds.QCPCsol.back().t;
   unsigned int sol_size = ds.QCPCsol.size();
   if (sol_size >= ds.max_plot) {
@@ -68,7 +71,8 @@ void MainWindow::ppSlot() {
   if (ds.is_hit_section()) {
     ds.QCPGpoincare << QCPGraphData(ds.last_state(ds.axis[0]),
                                     ds.last_state(ds.axis[1]));
-    poincare->data()->set(ds.QCPGpoincare, true);
+    if (show_poincare)
+      poincare->data()->set(ds.QCPGpoincare, true);
     if (period_counter++ > ds.period - 1) {
       ds.tau = tau;
       tau = 0;
@@ -170,6 +174,16 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
     ds.QCPCsol.clear();
     ds.QCPGpoincare.clear();
     ds.tau = 0;
+    break;
+  case Qt::Key_T:
+    show_trajectory = !show_trajectory;
+    trajectory->data()->clear();
+    ds.QCPCsol.clear();
+    break;
+  case Qt::Key_P:
+    show_poincare = !show_poincare;
+    poincare->data()->clear();
+    ds.QCPGpoincare.clear();
     break;
   case Qt::Key_Q:
     QApplication::exit();
