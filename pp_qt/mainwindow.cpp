@@ -53,7 +53,11 @@ void MainWindow::ppSlot() {
   static unsigned int period_counter = 1;
   static double tau = 0;
 
-  ds.integrate(0, ds.last_state, ds.tick);
+  if (ds.use_classic_rk) {
+    ds.integrate_rk45(0, ds.last_state, ds.tick);
+  } else {
+    ds.integrate(0, ds.last_state, ds.tick);
+  }
   trajectory->data()->set(ds.QCPCsol, true);
   tau += ds.QCPCsol.back().t;
   unsigned int sol_size = ds.QCPCsol.size();

@@ -50,6 +50,7 @@ dynamical_system::dynamical_system(const std::string &json_location) {
   rkf_h_min = json["rkf_h_min"];
   rkf_tol = json["rkf_tol"];
   rkf_false_iter = json["rkf_false_iter"];
+  poincare_eps = json["poincare_eps"];
 
   /* These json array should be casted to the STL container type*/
   std::vector<double> fixed_arr = json["x0"];
@@ -60,6 +61,9 @@ dynamical_system::dynamical_system(const std::string &json_location) {
   std::vector<double> params_arr = json["params"];
   Eigen::Map<Eigen::VectorXd> params(params_arr.data(), params_arr.size());
   this->params = params;
+
+  dqdx = Eigen::MatrixXd::Zero(1, xdim);
+  dqdx(p_index) = 1.0;
 }
 
 void dynamical_system::integrate(double t0, const Eigen::VectorXd &x,
@@ -109,18 +113,15 @@ void dynamical_system::integrate(double t0, const Eigen::VectorXd &x,
                     0.5353313840155945 * k.col(3) - 0.2 * k.col(4);
       double qprod = q(next_state) * q(state);
       if (hit_section) {
-        if (std::abs(q(next_state)) < 1.0e-04) {
+        if (std::abs(q(next_state)) < poincare_eps) {
           state = next_state;
           x0 = state;
           t += h;
           QCPCsol.append(QCPCurveData(t, state(axis[0]), state(axis[1])));
           flag = false;
         }
-        if (qprod >= 0) {
-          h += h / 2;
-        } else if (qprod < 0) {
-          h -= h / 2;
-        }
+        // Newton's method for h
+        h -= (q(next_state) / (dqdx * func(h, state))(0, 0));
         next_state = state;
         continue;
       }
@@ -129,7 +130,6 @@ void dynamical_system::integrate(double t0, const Eigen::VectorXd &x,
                          : state(p_index) - next_state(p_index)) < 0 &&
           (next_state - state).norm() > 1.0e-02) {
         hit_section = true;
-        h /= 2;
         next_state = state;
         continue;
       }
@@ -170,7 +170,6 @@ void dynamical_system::integrate(double t0, const Eigen::VectorXd &x,
     }
   }
   last_state = state;
-  // tau += t;
 }
 
 bool dynamical_system::is_hit_section() {
@@ -180,4 +179,54 @@ bool dynamical_system::is_hit_section() {
   } else {
     return false;
   }
+}
+
+void dynamical_system::integrate_rk45(double t0, const Eigen::VectorXd &x,
+                                      double t_end) {
+  Eigen::VectorXd state = x;
+  Eigen::VectorXd next_state = x;
+  Eigen::MatrixXd k(x.rows(), 4);
+  Eigen::VectorXd temp(x.rows());
+  double t = t0;
+  double h = (t_end - t0) / rk_div;
+  hit_section = false;
+
+  for (int i = 0; i < rk_div; i++) {
+    k.col(0) = func(t0, state);
+    temp = state + h * 0.5 * k.col(0);
+    k.col(1) = func(t0 + h * 0.5, temp);
+    temp = state + h * 0.5 * k.col(1);
+    k.col(2) = func(t0 + h * 0.5, temp);
+    temp = state + h * k.col(2);
+    k.col(3) = func(t0 + h, temp);
+
+    next_state +=
+        (h / 6.0) * (k.col(0) + 2.0 * k.col(1) + 2.0 * k.col(2) + k.col(3));
+    double qprod = q(next_state) * q(state);
+    if (hit_section) {
+      if (std::abs(q(next_state)) < poincare_eps) {
+        state = next_state;
+        x0 = state;
+        t += h;
+        QCPCsol.append(QCPCurveData(t, state(axis[0]), state(axis[1])));
+        break;
+      }
+      // Newton's method for h
+      h -= (q(next_state) / (dqdx * func(h, state))(0, 0));
+      next_state = state;
+      continue;
+    }
+    if (qprod < 0 &&
+        (direction < 0 ? next_state(p_index) - state(p_index)
+                       : state(p_index) - next_state(p_index)) < 0 &&
+        (next_state - state).norm() > 1.0e-02) {
+      hit_section = true;
+      next_state = state;
+      continue;
+    }
+    state = next_state;
+    t += h;
+    QCPCsol.append(QCPCurveData(t, state(axis[0]), state(axis[1])));
+  }
+  last_state = state;
 }

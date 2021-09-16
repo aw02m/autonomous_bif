@@ -44,6 +44,7 @@
     "rkf_h_min": 1e-04,
     "rkf_tol": 2.0,
     "rkf_false_iter": 100,
+    "poincare_eps": 1.0e-08,
     "_comment_Newton_param": "dif_strip is used for numerical differentiation(if it's enabled)",
     "sigma": -1,
     "omega": 0,

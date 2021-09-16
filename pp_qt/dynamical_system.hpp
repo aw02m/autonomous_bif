@@ -20,13 +20,12 @@ public:
   double direction;
   unsigned int period;
 
-  // RK param
+  // graphic & rk params
   double tick;
   std::vector<unsigned int> axis;
   std::vector<double> xrange;
   std::vector<double> yrange;
   std::vector<double> dparams;
-
   unsigned int max_plot;
   unsigned int max_poincare_plot;
   bool use_classic_rk;
@@ -36,6 +35,7 @@ public:
   double rkf_h_min;
   double rkf_tol;
   unsigned int rkf_false_iter;
+  double poincare_eps;
 
   Eigen::VectorXd x0;
   Eigen::VectorXd params;
@@ -44,10 +44,12 @@ public:
   Eigen::VectorXd last_state;
   QVector<QCPCurveData> QCPCsol;
   QVector<QCPGraphData> QCPGpoincare;
+  Eigen::MatrixXd dqdx;
   bool hit_section = false;
   bool is_hit_section();
 
   void integrate(double t0, const Eigen::VectorXd &x, double t_end);
+  void integrate_rk45(double t0, const Eigen::VectorXd &x, double t_end);
 };
 
 #endif
