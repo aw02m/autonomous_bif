@@ -30,15 +30,16 @@ Eigen::VectorXd variational_para1(double t, const Eigen::VectorXd &dphidlambda,
                                   const Eigen::MatrixXd &dfdx,
                                   const dynamical_system &ds);
 
+Eigen::MatrixXd dTdx(const dynamical_system &ds);
 Eigen::MatrixXd dTldu(const dynamical_system &ds);
 Eigen::VectorXd dTldtau(const dynamical_system &ds);
 Eigen::VectorXd dTldlambda(const dynamical_system &ds);
 Eigen::MatrixXd dqdu(const dynamical_system &ds);
 Eigen::MatrixXd dqdtau(const dynamical_system &ds);
 Eigen::VectorXd dqdlambda(const dynamical_system &ds);
-std::vector<Eigen::MatrixXd> dTldudu(const dynamical_system &ds);
-Eigen::MatrixXd dTldudtau(const dynamical_system &ds);
-Eigen::MatrixXd dTldudlambda(const dynamical_system &ds);
+std::vector<Eigen::MatrixXd> dTdxdu(const dynamical_system &ds);
+Eigen::MatrixXd dTdxdtau(const dynamical_system &ds);
+Eigen::MatrixXd dTdxdlambda(const dynamical_system &ds);
 Eigen::MatrixXcd dchidu(const dynamical_system &ds);
 Eigen::dcomplex dchidtau(const dynamical_system &ds);
 Eigen::dcomplex dchidlambda(const dynamical_system &ds);

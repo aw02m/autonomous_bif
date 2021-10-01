@@ -60,15 +60,16 @@ public:
 
   Eigen::MatrixXcd chara_poly;
 
+  Eigen::MatrixXd dTdx;
   Eigen::MatrixXd dTldu;
   Eigen::VectorXd dTldtau;
   Eigen::VectorXd dTldlambda;
   Eigen::MatrixXd dqdu;
   Eigen::MatrixXd dqdtau;
   Eigen::MatrixXd dqdlambda;
-  std::vector<Eigen::MatrixXd> dTldudu;
-  Eigen::MatrixXd dTldudtau;
-  Eigen::MatrixXd dTldudlambda;
+  std::vector<Eigen::MatrixXd> dTdxdu;
+  Eigen::MatrixXd dTdxdtau;
+  Eigen::MatrixXd dTdxdlambda;
 
   Eigen::VectorXcd eigvals;
   Eigen::dcomplex mu;

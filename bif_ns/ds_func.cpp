@@ -22,6 +22,8 @@ void store_state(const Eigen::VectorXd &vp, dynamical_system &ds) {
   ds.u0 = u;
   ds.tauk(0) = tau;
   ds.xk[0] = h_inv(u, ds);
+  ds.params(ds.var_param) = vp(ds.udim + ds.period);
+  ds.theta = vp(ds.udim + ds.period + 1);
 
   I.resize(I.cols() * I.rows(), 1);
   init_state << ds.xk[0], I, O;
@@ -63,21 +65,21 @@ void store_state(const Eigen::VectorXd &vp, dynamical_system &ds) {
 
   ds.dphidxdtau[0] = ds.dfdx[0] * ds.dphidx[0];
 
+  ds.dTdx = dTdx(ds);
   ds.dTldu = dTldu(ds);
   ds.dTldtau = dTldtau(ds);
   ds.dTldlambda = dTldlambda(ds);
   ds.dqdu = dqdu(ds);
   ds.dqdtau = dqdtau(ds);
   ds.dqdlambda = dqdlambda(ds);
-  ds.dTldudu = dTldudu(ds);
-  ds.dTldudtau = dTldudtau(ds);
-  ds.dTldudlambda = dTldudlambda(ds);
+  ds.dTdxdu = dTdxdu(ds);
+  ds.dTdxdtau = dTdxdtau(ds);
+  ds.dTdxdlambda = dTdxdlambda(ds);
 
   ds.eigvals = eigenvalues(ds);
   ds.mu = Eigen::dcomplex(std::cos(ds.theta), std::sin(ds.theta));
 
-  ds.chara_poly =
-      ds.dTldu - ds.mu * Eigen::MatrixXd::Identity(ds.udim, ds.udim);
+  ds.chara_poly = ds.dTdx - ds.mu * Eigen::MatrixXd::Identity(ds.xdim, ds.xdim);
 }
 
 Eigen::VectorXd variational_eq(double t, const Eigen::VectorXd &x,
@@ -86,6 +88,7 @@ Eigen::VectorXd variational_eq(double t, const Eigen::VectorXd &x,
                       ds.size_dphidxdx + ds.size_dphidxdlambda);
   unsigned int counter = 0;
 
+  // state
   Eigen::VectorXd state_x = x(Eigen::seqN(counter, ds.xdim));
   counter += ds.xdim;
   Eigen::MatrixXd state_dfdx = dfdx(state_x, ds);
@@ -93,6 +96,7 @@ Eigen::VectorXd variational_eq(double t, const Eigen::VectorXd &x,
   std::vector<Eigen::MatrixXd> state_dfdxdx = dfdxdx(state_x, ds);
   Eigen::MatrixXd state_dfdxdlambda = dfdxdlambda(state_x, ds);
 
+  // variational state
   Eigen::MatrixXd state_dphidx = x(Eigen::seqN(counter, ds.size_dphidx));
   state_dphidx.resize(ds.xdim, ds.xdim);
   counter += ds.size_dphidx;
@@ -113,32 +117,35 @@ Eigen::VectorXd variational_eq(double t, const Eigen::VectorXd &x,
       x(Eigen::seqN(counter, ds.size_dphidxdlambda));
 
   counter = 0;
+
+  // phi
   ret(Eigen::seqN(0, ds.xdim)) = f(t, state_x, ds);
   counter += ds.xdim;
-  ret(Eigen::seqN(counter, ds.xdim * ds.xdim)) = state_dfdx * state_dphidx;
+
+  // dphidx
+  ret(Eigen::seqN(counter, ds.size_dphidx)) = state_dfdx * state_dphidx;
   counter += ds.size_dphidx;
-  ret(Eigen::seqN(counter, ds.xdim)) =
+
+  // dphidlambda
+  ret(Eigen::seqN(counter, ds.size_dphidlambda)) =
       state_dfdx * state_dphidlambda + state_dfdlambda;
   counter += ds.size_dphidlambda;
-  std::vector<Eigen::MatrixXd> DDF(ds.xdim,
-                                   Eigen::MatrixXd::Zero(ds.xdim, ds.xdim));
+
+  // dphidxdx
   for (int i = 0; i < ds.xdim; i++) {
-    for (int j = 0; j < ds.xdim; j++) {
-      DDF[i].col(j) = state_dfdxdx[j] * state_dphidx.col(i);
-    }
-    // std::cout << state_dfdx * state_dphidxdx[i] << std::endl;
-    ret(Eigen::seqN(counter + ds.size_dphidx * i, ds.size_dphidx)) =
-        state_dfdx * state_dphidxdx[i] + DDF[i] * state_dphidx;
-    // std::cout << state_dfdx * state_dphidxdx[i] + DDF[i] * state_dphidx
-    //           << std::endl;
-    // std::cout << ret(Eigen::seqN(counter + ds.size_dphidx * i,
-    // ds.size_dphidx)); exit(0);
+    ret(Eigen::seqN(counter, ds.size_dphidx)) =
+        state_dfdxdx[i] * state_dphidx * state_dphidx +
+        state_dfdx * state_dphidxdx[i];
+    counter += ds.size_dphidx;
   }
-  counter += ds.size_dphidxdx;
+
+  // dphidxdlambda
   for (int i = 0; i < ds.xdim; i++) {
-    ret(Eigen::seqN(counter + ds.xdim * i, ds.xdim)) =
-        state_dfdx * state_dphidxdlambda.col(i) + DDF[i] * state_dphidlambda +
-        state_dfdxdlambda.col(i);
+    ret(Eigen::seqN(counter, ds.xdim)) =
+        state_dfdxdx[i] * state_dphidlambda * state_dphidx +
+        state_dfdxdlambda * state_dphidx.col(i) +
+        state_dfdx * state_dphidxdlambda.col(i);
+    counter += ds.xdim;
   }
 
   return ret;
@@ -153,19 +160,18 @@ Eigen::VectorXd func_newton(const dynamical_system &ds) {
   chi = (ds.chara_poly).determinant();
   ret(ds.udim + ds.period) = chi.real();
   ret(ds.udim + ds.period + 1) = chi.imag();
-
   return ret;
 }
 
 Eigen::dcomplex det_derivative(const Eigen::MatrixXcd &A,
                                const Eigen::MatrixXcd &dA,
                                const dynamical_system &ds) {
-  Eigen::MatrixXcd temp(ds.udim, ds.udim);
+  Eigen::MatrixXcd temp(ds.xdim, ds.xdim);
   Eigen::dcomplex ret(0, 0);
 
-  for (int i = 0; i < ds.udim; i++) {
+  for (int i = 0; i < ds.xdim; i++) {
     temp = A;
-    temp.col(i) = dA.col(i).cast<Eigen::dcomplex>();
+    temp.col(i) = dA.col(i);
     ret += temp.determinant();
   }
 
@@ -267,24 +273,7 @@ Eigen::MatrixXd dh_invdu(const dynamical_system &ds) {
   return ret;
 }
 
-// Eigen::VectorXd variational_init1(double t, const Eigen::MatrixXd &dphidx,
-//                                   const Eigen::MatrixXd &dfdx,
-//                                   const dynamical_system &ds) {
-//   Eigen::MatrixXd ret = dfdx * dphidx;
-//   ret.resize(ds.xdim * ds.xdim, 1);
-//   return ret;
-// }
-
-// Eigen::VectorXd variational_para1(double t, const Eigen::VectorXd
-// &dphidlambda,
-//                                   const Eigen::VectorXd &x,
-//                                   const Eigen::MatrixXd &dfdx,
-//                                   const dynamical_system &ds) {
-//   // Eigen::VectorXd ret;
-//   // ret = dfdx(phi, ds) * x + dfdlambda(phi, ds);
-//   // return ret;
-//   return dfdx * x + dfdlambda(x, ds);
-// }
+Eigen::MatrixXd dTdx(const dynamical_system &ds) { return ds.dphidx[0]; }
 
 Eigen::MatrixXd dTldu(const dynamical_system &ds) {
   return ds.dhdx * ds.dphidx[0] * ds.dh_invdu;
@@ -310,50 +299,49 @@ Eigen::VectorXd dqdlambda(const dynamical_system &ds) {
   return ds.dqdx * ds.dphidlambda[0];
 }
 
-std::vector<Eigen::MatrixXd> dTldudu(const dynamical_system &ds) {
+std::vector<Eigen::MatrixXd> dTdxdu(const dynamical_system &ds) {
   std::vector<Eigen::MatrixXd> ret = std::vector<Eigen::MatrixXd>(
-      ds.udim, Eigen::MatrixXd::Zero(ds.udim, ds.udim));
-  for (int i = 0; i < ds.udim; i++) {
+      ds.udim, Eigen::MatrixXd::Zero(ds.xdim, ds.xdim));
+  for (int i = 0; i < ds.xdim; i++) {
     if (i != ds.p_index) {
       if (i < ds.p_index) {
-        ret[i] = ds.dhdx * ds.dphidxdx[0][i] * ds.dh_invdu;
+        ret[i] = ds.dphidxdx[0][i];
       } else {
-        ret[i - 1] = ds.dhdx * ds.dphidxdx[0][i] * ds.dh_invdu;
+        ret[i - 1] = ds.dphidxdx[0][i];
       }
     }
   }
   return ret;
 }
 
-Eigen::MatrixXd dTldudtau(const dynamical_system &ds) {
-  return ds.dhdx * ds.dphidxdtau[0] * ds.dh_invdu;
+Eigen::MatrixXd dTdxdtau(const dynamical_system &ds) {
+  return ds.dphidxdtau[0];
 }
 
-Eigen::MatrixXd dTldudlambda(const dynamical_system &ds) {
-  return ds.dhdx * ds.dphidxdlambda[0] * ds.dh_invdu;
+Eigen::MatrixXd dTdxdlambda(const dynamical_system &ds) {
+  return ds.dphidxdlambda[0];
 }
 
 Eigen::MatrixXcd dchidu(const dynamical_system &ds) {
   Eigen::MatrixXcd ret(1, ds.udim);
   for (int i = 0; i < ds.udim; i++) {
-    ret(0, i) = det_derivative(ds.chara_poly, ds.dTldudu[i], ds);
+    ret(0, i) = det_derivative(ds.chara_poly, ds.dTdxdu[i], ds);
   }
   return ret;
 }
 
 Eigen::dcomplex dchidtau(const dynamical_system &ds) {
-  return det_derivative(ds.chara_poly, ds.dTldudtau, ds);
+  return det_derivative(ds.chara_poly, ds.dTdxdtau, ds);
 }
 
 Eigen::dcomplex dchidlambda(const dynamical_system &ds) {
-  return det_derivative(ds.chara_poly, ds.dTldudlambda, ds);
+  return det_derivative(ds.chara_poly, ds.dTdxdlambda, ds);
 }
 
 Eigen::dcomplex dchidtheta(const dynamical_system &ds) {
-  Eigen::dcomplex ret(0, 0);
   Eigen::MatrixXcd dpolydtheta =
       Eigen::dcomplex(std::sin(ds.theta), -std::cos(ds.theta)) *
-      Eigen::MatrixXd::Identity(ds.udim, ds.udim);
+      Eigen::MatrixXd::Identity(ds.xdim, ds.xdim);
   return det_derivative(ds.chara_poly, dpolydtheta, ds);
 }
 
@@ -378,58 +366,3 @@ void removeCol(Eigen::MatrixXd &matrix, unsigned int colToRemove) {
 
   matrix.conservativeResize(numRows, numCols);
 }
-
-//////////////////////////////////////////////////////////////////////
-///// Implementation example of projection h & h_inv using Eigen /////
-//////////////////////////////////////////////////////////////////////
-
-// // Easy
-// Eigen::VectorXd h(const Eigen::VectorXd& x, const dynamical_system& ds)
-// {
-//   Eigen::VectorXd ret(ds.udim);
-//   ret << x(0), x(2);
-//   return ret;
-// }
-
-// Eigen::VectorXd h_inv(const Eigen::VectorXd& u, const dynamical_system& ds)
-// {
-//   Eigen::VectorXd ret(ds.xdim);
-//   ret << u(0), ds.p_place, u(1);
-//   return ret;
-// }
-
-//// Rich but slower
-// Eigen::VectorXd h(Eigen::VectorXd &x, dynamical_system &ds) {
-//   unsigned int num_rows = x.rows() - 1;
-//   Eigen::VectorXd ret(x.rows() - 1);
-
-//   if (ds.p_index < num_rows) {
-//     ret.segment(ds.p_index, num_rows - ds.p_index) =
-//         ret.bottomRows(num_rows - ds.p_index);
-//   } else {
-//     std::cerr << "psec_index is out of range in the function h." <<
-//     std::endl; std::exit(1);
-//   }
-
-//   ret.conservativeResize(num_rows);
-//   return ret;
-// }
-
-// Eigen::VectorXd h_inv(Eigen::VectorXd &u, dynamical_system &ds) {
-//   unsigned int num_rows = u.rows() + 1;
-//   Eigen::VectorXd ret(u.rows() + 1);
-//   ret.head(u.rows()) = u;
-
-//   if (ds.p_index < num_rows) {
-//     ret.segment(ds.p_index + 1, num_rows - ds.p_index - 1) =
-//         u.bottomRows(u.rows() - ds.p_index);
-//     ret(ds.p_index) = ds.p_place;
-//   } else {
-//     std::cerr << "psec_index is out of range in the function h_inv."
-//               << std::endl;
-//     std::exit(1);
-//   }
-
-//   ret.conservativeResize(num_rows);
-//   return ret;
-// }

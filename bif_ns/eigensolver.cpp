@@ -3,7 +3,8 @@
 
 Eigen::VectorXcd eigenvalues(const dynamical_system &ds) {
   Eigen::VectorXcd eigvals(ds.udim);
-  eigvals = Eigen::EigenSolver<Eigen::MatrixXd>(ds.dTldu).eigenvalues();
+  // eigvals = Eigen::EigenSolver<Eigen::MatrixXd>(ds.dTldu).eigenvalues();
+  eigvals = Eigen::EigenSolver<Eigen::MatrixXd>(ds.dTdx).eigenvalues();
 
   return eigvals;
 }

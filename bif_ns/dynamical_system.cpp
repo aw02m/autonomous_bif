@@ -60,7 +60,8 @@ dynamical_system::dynamical_system(nlohmann::json json) {
   size_dphidxdx = xdim * xdim * xdim;
   size_dphidxdlambda = xdim * xdim;
 
-  dTldudu = std::vector<Eigen::MatrixXd>(xdim, Eigen::MatrixXd::Zero(xdim, xdim));
+  dTdxdu =
+      std::vector<Eigen::MatrixXd>(udim, Eigen::MatrixXd::Zero(xdim, xdim));
 
   mu = Eigen::dcomplex(json["sigma"], json["omega"]);
   theta = std::arg(mu);
