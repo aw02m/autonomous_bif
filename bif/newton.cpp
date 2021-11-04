@@ -1,19 +1,52 @@
 #include "newton.hpp"
 #include "dynamical_system.hpp"
 #include <fstream>
+#include <iomanip>
 
 void newton(dynamical_system &ds) {
-  Eigen::VectorXd vp(ds.xdim + 1);
-  vp << ds.u0, ds.tauk, ds.p(ds.var_param);
-  Eigen::VectorXd vn(ds.xdim + 1);
-  Eigen::VectorXd F(ds.xdim + 1);
-  Eigen::MatrixXd J(ds.xdim + 1, ds.xdim + 1);
-  Eigen::VectorXcd eigvals;
+  unsigned int target_dim;
+  switch (ds.mode) {
+  case 0:
+    target_dim = ds.xdim + 1;
+    break;
+  case 1:
+    target_dim = ds.xdim + 3;
+    break;
+  case 2:
+    target_dim = ds.xdim + 2;
+    break;
+  case 3:
+    target_dim = ds.xdim + 3;
+    break;
+  }
+  Eigen::VectorXd vp(target_dim);
+  Eigen::VectorXd vn(target_dim);
+  Eigen::VectorXd F(target_dim);
+  Eigen::MatrixXd J(target_dim, target_dim);
   double norm;
-  Eigen::IOFormat Comma(8, 0, ", ", "\n", "[", "]");
+  Eigen::IOFormat Comma(Eigen::StreamPrecision, 0, ", ", "\n", "[", "]");
+  std::cout << std::fixed << std::setprecision(16);
   std::vector<Eigen::VectorXd> bifset(ds.inc_iter,
                                       Eigen::VectorXd::Zero(ds.p.size()));
   bool exit_flag = false;
+
+  vp(Eigen::seqN(0, ds.xdim)) = ds.x0;
+  vp(ds.xdim) = ds.tau;
+  switch (ds.mode) {
+  case 0:
+    break;
+  case 1:
+    vp(ds.xdim + 1) = ds.p(ds.var_param);
+    vp(ds.xdim + 2) = 1;
+    break;
+  case 2:
+    vp(ds.xdim + 1) = ds.p(ds.var_param);
+    break;
+  case 3:
+    vp(ds.xdim + 1) = ds.p(ds.var_param);
+    vp(ds.xdim + 2) = ds.theta;
+    break;
+  }
 
   for (int p = 0; p < ds.inc_iter; p++) {
     if (exit_flag) {
@@ -28,34 +61,30 @@ void newton(dynamical_system &ds) {
       J = std::get<1>(FJ);
       vn = Eigen::ColPivHouseholderQR<Eigen::MatrixXd>(J).solve(-F) + vp;
       norm = (vn - vp).norm();
-      // debug(F);
-      // debug(J);
-      // debug(vp);
-      // debug(vn);
-      // debug(norm);
       if (norm < ds.eps) {
         auto end = std::chrono::system_clock::now();
         auto dur = end - start;
         auto msec =
             std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
-        std::cout << "**************************************************"
-                  << std::endl;
+
+        std::cout << std::setprecision(16);
         std::cout << p << " : converged (iter = " << i + 1 << ", ";
         std::cout << "time = " << msec << "[msec])" << std::endl;
         std::cout << "params : " << ds.p.transpose().format(Comma) << std::endl;
         std::cout << "x0     : "
-                  << ds.h_inv(vn(Eigen::seqN(0, ds.udim))).transpose().format(Comma)
+                  << vn(Eigen::seqN(0, ds.xdim)).transpose().format(Comma)
                   << std::endl;
-        std::cout << "tau    : " << vn(ds.udim) << std::endl;
+        std::cout << "tau    : " << vn(ds.xdim) << std::endl;
+        std::cout << "theta  : " << ds.theta << std::endl;
+        std::cout << std::setprecision(4);
         std::cout << "(Re(μ), Im(μ)), abs(μ), arg(μ) :" << std::endl;
         for (int k = 0; k < ds.xdim; k++) {
           std::cout << ds.eigvals(k) << ", ";
           std::cout << std::abs(ds.eigvals(k)) << ", ";
-          std::cout << std::arg(ds.eigvals(k)) * (180 / EIGEN_PI) << std::endl;
+          std::cout << std::arg(ds.eigvals(k)) << std::endl;
         }
         std::cout << "**************************************************"
                   << std::endl;
-        ds.p(ds.var_param) = vn(ds.xdim);
         bifset[p] = ds.p;
         vp = vn;
         break;
@@ -74,10 +103,20 @@ void newton(dynamical_system &ds) {
     ds.p[ds.inc_param] += ds.delta_inc;
   }
 
-  std::ofstream f;
-  f.open("out", std::ios::out);
-  for (int i = 0; i < ds.inc_iter; i++) {
-    f << bifset[i].transpose() << std::endl;
+  // set last state
+  ds.x0 = vn(Eigen::seqN(0, ds.xdim));
+  // output
+  if (ds.mode != 0) {
+    ds.p(ds.var_param) = vn(ds.xdim + 1);
+    if (ds.mode = 3)
+      ds.theta = vn(ds.xdim + 2);
+    Eigen::IOFormat Out(Eigen::FullPrecision, 0, " ", "\n", " ", " ");
+    std::ofstream f;
+    f.open(ds.out_path, std::ios::out);
+    f << std::fixed;
+    for (int i = 0; i < ds.inc_iter; i++) {
+      f << bifset[i].transpose().format(Out) << std::endl;
+    }
+    f.close();
   }
-  f.close();
 }

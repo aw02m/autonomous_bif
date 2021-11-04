@@ -17,35 +17,37 @@ void dynamical_system::function(double t, const Eigen::VectorXd &x,
   dfdx(2, 1) = 0.0;
   dfdx(2, 2) = -p(2) + x(0);
 
-  dfdlambda = Eigen::VectorXd::Zero(xdim);
-  switch (var_param) {
-  case 0:
-    dfdlambda(1) = x(1);
-    break;
-  case 1:
-    dfdlambda(2) = x(0);
-    break;
-  case 2:
-    dfdlambda(2) = -x(2);
-    break;
-  }
+  if (mode != 0) {
+    dfdlambda = Eigen::VectorXd::Zero(xdim);
+    switch (var_param) {
+    case 0:
+      dfdlambda(1) = x(1);
+      break;
+    case 1:
+      dfdlambda(2) = x(0);
+      break;
+    case 2:
+      dfdlambda(2) = -x(2);
+      break;
+    }
 
-  dfdxdx =
-      std::vector<Eigen::MatrixXd>(xdim, Eigen::MatrixXd::Zero(xdim, xdim));
-  dfdxdx[0](2, 2) = 1;
-  dfdxdx[2](2, 0) = 1;
+    dfdxdx =
+        std::vector<Eigen::MatrixXd>(xdim, Eigen::MatrixXd::Zero(xdim, xdim));
+    dfdxdx[0](2, 2) = 1;
+    dfdxdx[2](2, 0) = 1;
 
-  dfdxdlambda = Eigen::MatrixXd::Zero(xdim, xdim);
-  switch (var_param) {
-  case 0:
-    dfdxdlambda(1, 1) = 1;
-    break;
-  case 1:
-    dfdxdlambda(2, 0) = 1;
-    break;
-  case 2:
-    dfdxdlambda(2, 2) = -1;
-    break;
+    dfdxdlambda = Eigen::MatrixXd::Zero(xdim, xdim);
+    switch (var_param) {
+    case 0:
+      dfdxdlambda(1, 1) = 1;
+      break;
+    case 1:
+      dfdxdlambda(2, 0) = 1;
+      break;
+    case 2:
+      dfdxdlambda(2, 2) = -1;
+      break;
+    }
   }
 
   /******************************************************/
@@ -81,22 +83,24 @@ void dynamical_system::function(double t, const Eigen::VectorXd &x,
   dxdt(Eigen::seqN(counter, size_dphidx)) = dfdx * state_dphidx;
   counter += size_dphidx;
 
-  // dphidlambda
-  dxdt(Eigen::seqN(counter, xdim)) = dfdx * state_dphidlambda + dfdlambda;
-  counter += size_dphidlambda;
+  if (mode != 0) {
+    // dphidlambda
+    dxdt(Eigen::seqN(counter, xdim)) = dfdx * state_dphidlambda + dfdlambda;
+    counter += size_dphidlambda;
 
-  // dphidxdx
-  for (int i = 0; i < xdim; i++) {
-    dxdt(Eigen::seqN(counter, size_dphidx)) =
-        dfdxdx[i] * state_dphidx * state_dphidx + dfdx * state_dphidxdx[i];
-    counter += size_dphidx;
-  }
+    // dphidxdx
+    for (int i = 0; i < xdim; i++) {
+      dxdt(Eigen::seqN(counter, size_dphidx)) =
+          dfdxdx[i] * state_dphidx * state_dphidx + dfdx * state_dphidxdx[i];
+      counter += size_dphidx;
+    }
 
-  // dphidxdlambda
-  for (int i = 0; i < xdim; i++) {
-    dxdt(Eigen::seqN(counter, xdim)) =
-        dfdxdx[i] * state_dphidlambda * state_dphidx +
-        dfdxdlambda * state_dphidx.col(i) + dfdx * state_dphidxdlambda.col(i);
-    counter += xdim;
+    // dphidxdlambda
+    for (int i = 0; i < xdim; i++) {
+      dxdt(Eigen::seqN(counter, xdim)) =
+          dfdxdx[i] * state_dphidlambda * state_dphidx +
+          dfdxdlambda * state_dphidx.col(i) + dfdx * state_dphidxdlambda.col(i);
+      counter += xdim;
+    }
   }
 }

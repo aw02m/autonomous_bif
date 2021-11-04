@@ -36,14 +36,23 @@ int main(int argc, char *argv[]) {
   std::cout << ds.p.transpose() << std::endl;
   std::cout << "x0  : ";
   std::cout << ds.x0.transpose() << std::endl;
-  std::cout << "u0  : ";
-  std::cout << ds.u0.transpose() << std::endl;
   std::cout << "tau : ";
-  std::cout << ds.tauk.transpose() << std::endl;
+  std::cout << ds.tau << std::endl;
+  std::cout << "theta : ";
+  std::cout << ds.theta << std::endl;
   std::cout << "**************************************************"
             << std::endl;
 
   newton(ds);
+
+  // output json for latest state
+  json["x0"] = ds.x0;
+  json["params"] = ds.p;
+  json["theta"] = ds.theta;
+  std::ofstream json_out;
+  json_out.open(ds.json_out_path, std::ios::out);
+  json_out << json.dump(4);
+  json_out.close();
 
   return 0;
 }

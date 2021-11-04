@@ -10,8 +10,11 @@ public:
   std::tuple<Eigen::VectorXd, Eigen::MatrixXd>
   newton_FJ(const Eigen::VectorXd &v);
 
+  unsigned int mode;
+  std::string out_path;
+  std::string json_out_path;
+
   unsigned int xdim;
-  unsigned int udim;
   unsigned int period;
   unsigned int p_index;
   double p_place;
@@ -35,13 +38,11 @@ public:
   double explode;
 
   Eigen::VectorXd x0;
-  Eigen::VectorXd u0;
-  Eigen::VectorXd tauk;
+  double tau;
   Eigen::VectorXd p;
+  double theta;
 
   Eigen::MatrixXcd eigvals;
-  
-  Eigen::VectorXd h_inv(const Eigen::VectorXd &u);
 
 private:
   std::vector<Eigen::VectorXd> xk;
@@ -50,11 +51,8 @@ private:
   Eigen::MatrixXd dfdx;
   Eigen::VectorXd dfdlambda;
   std::vector<Eigen::MatrixXd> dfdxdx;
-  Eigen::MatrixXd dfdxdlambda;  
+  Eigen::MatrixXd dfdxdlambda;
 
-  Eigen::MatrixXd dqdx;
-  Eigen::MatrixXd dhdx;
-  Eigen::MatrixXd dh_invdu;
 
   Eigen::MatrixXd dphidx;
   Eigen::VectorXd dphidlambda;
@@ -67,31 +65,36 @@ private:
   unsigned int size_dphidxdx;
   unsigned int size_dphidxdlambda;
 
-  Eigen::MatrixXd chara_poly;
-
-  Eigen::MatrixXd dTldu;
-  Eigen::VectorXd dTldtau;
-  Eigen::VectorXd dTldlambda;
-  Eigen::MatrixXd dqdu;
+  Eigen::MatrixXd dTdx;
+  Eigen::VectorXd dTdtau;
+  Eigen::VectorXd dTdlambda;
+  Eigen::MatrixXd dqdx;
   Eigen::MatrixXd dqdtau;
   Eigen::MatrixXd dqdlambda;
-  std::vector<Eigen::MatrixXd> dTdxdu;
+  std::vector<Eigen::MatrixXd> dTdxdx;
   Eigen::MatrixXd dTdxdtau;
   Eigen::MatrixXd dTdxdlambda;
 
-  Eigen::MatrixXd dTdx;
-  double mu;
+  Eigen::dcomplex mu;
+  Eigen::MatrixXcd chara_poly;
 
   void function(double t, const Eigen::VectorXd &x, Eigen::VectorXd &dxdt);
   double q(const Eigen::VectorXd &x);
-  Eigen::VectorXd h(const Eigen::VectorXd &x);
   void integrate(double t_0, Eigen::VectorXd &x, double t_end);
-  double det_derivative(const Eigen::MatrixXd &A, const Eigen::MatrixXd &dA);
+  Eigen::dcomplex det_derivative(const Eigen::MatrixXcd &A,
+                                 const Eigen::MatrixXcd &dA);
 
   void store_constant_state();
   void store_states(const Eigen::VectorXd &v);
-  Eigen::VectorXd newton_F();
-  Eigen::MatrixXd newton_J();
+  void store_states_fix(const Eigen::VectorXd &v);
+  Eigen::VectorXd newton_F_fix();
+  Eigen::MatrixXd newton_J_fix();
+  Eigen::VectorXd newton_F_G();
+  Eigen::MatrixXd newton_J_G();
+  Eigen::VectorXd newton_F_PD();
+  Eigen::MatrixXd newton_J_PD();
+  Eigen::VectorXd newton_F_NS();
+  Eigen::MatrixXd newton_J_NS();
 };
 
 #endif
