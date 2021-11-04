@@ -2,7 +2,11 @@ English md is in preparation.
 
 分岐理論の詳細についてはaw02m/bifurcation_theoryを参照してください．(加筆中)
 
-8/31/2021 : QT5-QCustomPlotを用いたppツールを追加しました．(pp_qt)
+8/31/2021 : QT5-QCustomPlotを用いたppツールを追加しました．(pp_qt)  
+11/4/2021 : 一時的にPD計算しか利用できません．変分方程式の計算を高速化しました(1000倍くらい)．  
+comming soon : fix&bif統合，NS&G対応  
+もうちょっと時間かかるかも : boost積分器対応，multiple-shooting法
+
 
 # autonomous_bif
 自律系(微分方程式)の分岐解析ツールです．
