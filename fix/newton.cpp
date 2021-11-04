@@ -41,7 +41,7 @@ void newton(dynamical_system &ds) {
             << std::endl;
         std::cout << "tau    : " << vn(ds.udim) << std::endl;
         std::cout << "(Re(μ), Im(μ)), abs(μ), arg(μ) :" << std::endl;
-        for (int k = 0; k < ds.udim; k++) {
+        for (int k = 0; k < ds.xdim; k++) {
           std::cout << ds.eigvals(k) << ", ";
           std::cout << std::abs(ds.eigvals(k)) << ", ";
           std::cout << std::arg(ds.eigvals(k)) * (180 / EIGEN_PI) << std::endl;
