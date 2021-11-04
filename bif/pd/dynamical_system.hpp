@@ -7,6 +7,8 @@
 class dynamical_system {
 public:
   dynamical_system(nlohmann::json json);
+  std::tuple<Eigen::VectorXd, Eigen::MatrixXd>
+  newton_FJ(const Eigen::VectorXd &v);
 
   unsigned int xdim;
   unsigned int udim;
@@ -29,29 +31,36 @@ public:
   double delta_inc;
   unsigned int inc_iter;
   unsigned int max_iter;
-  double dif_strip;
   double eps;
   double explode;
 
   Eigen::VectorXd x0;
   Eigen::VectorXd u0;
   Eigen::VectorXd tauk;
-  Eigen::VectorXd params;
+  Eigen::VectorXd p;
 
+  Eigen::MatrixXcd eigvals;
+  
+  Eigen::VectorXd h_inv(const Eigen::VectorXd &u);
+
+private:
   std::vector<Eigen::VectorXd> xk;
-  std::vector<Eigen::VectorXd> fk;
 
+  Eigen::VectorXd f;
+  Eigen::MatrixXd dfdx;
+  Eigen::VectorXd dfdlambda;
+  std::vector<Eigen::MatrixXd> dfdxdx;
+  Eigen::MatrixXd dfdxdlambda;  
+
+  Eigen::MatrixXd dqdx;
   Eigen::MatrixXd dhdx;
   Eigen::MatrixXd dh_invdu;
-  Eigen::MatrixXd dqdx;
 
-  std::vector<Eigen::MatrixXd> dfdx;
-
-  std::vector<Eigen::MatrixXd> dphidx;
-  std::vector<Eigen::VectorXd> dphidlambda;
-  std::vector<std::vector<Eigen::MatrixXd>> dphidxdx;
-  std::vector<Eigen::MatrixXd> dphidxdtau;
-  std::vector<Eigen::MatrixXd> dphidxdlambda;
+  Eigen::MatrixXd dphidx;
+  Eigen::VectorXd dphidlambda;
+  std::vector<Eigen::MatrixXd> dphidxdx;
+  Eigen::MatrixXd dphidxdtau;
+  Eigen::MatrixXd dphidxdlambda;
 
   unsigned int size_dphidx;
   unsigned int size_dphidlambda;
@@ -66,12 +75,23 @@ public:
   Eigen::MatrixXd dqdu;
   Eigen::MatrixXd dqdtau;
   Eigen::MatrixXd dqdlambda;
-  std::vector<Eigen::MatrixXd> dTldudu;
-  Eigen::MatrixXd dTldudtau;
-  Eigen::MatrixXd dTldudlambda;
+  std::vector<Eigen::MatrixXd> dTdxdu;
+  Eigen::MatrixXd dTdxdtau;
+  Eigen::MatrixXd dTdxdlambda;
 
-  Eigen::MatrixXcd eigvals;
+  Eigen::MatrixXd dTdx;
   double mu;
+
+  void function(double t, const Eigen::VectorXd &x, Eigen::VectorXd &dxdt);
+  double q(const Eigen::VectorXd &x);
+  Eigen::VectorXd h(const Eigen::VectorXd &x);
+  void integrate(double t_0, Eigen::VectorXd &x, double t_end);
+  double det_derivative(const Eigen::MatrixXd &A, const Eigen::MatrixXd &dA);
+
+  void store_constant_state();
+  void store_states(const Eigen::VectorXd &v);
+  Eigen::VectorXd newton_F();
+  Eigen::MatrixXd newton_J();
 };
 
 #endif

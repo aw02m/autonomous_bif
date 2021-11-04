@@ -14,15 +14,11 @@
         20.0
     ],
     "x0": [
-        -5.65159,
-        0,
-        -0.126973
+        -5.3795406,           0, -0.38812296        
     ],
-    "tau": 6.13356,
+    "tau": 14.3891,
     "params": [
-        0.2,
-        0.255786,
-        5.7
+        0.4396,    0.8,    5.7
     ],
     "dparams": [
         0.01,
@@ -35,21 +31,20 @@
     "period": 1,
     "_comment_RKF_param": "use_classic_rk : 0.RKF56, !0.Classic RK45, tol : tolerance",
     "use_classic_rk": true,
-    "rk_div": 100,
-    "rkf_first_h": 0.001,
+    "rk_div": 64,
+    "rkf_first_h": 0.01,
     "rkf_h_max": 0.1,
     "rkf_h_min": 1e-04,
-    "rkf_tol": 2.0,
-    "rkf_false_iter": 100,
+    "rkf_tol": 0.1,
+    "rkf_false_iter": 32,
     "_comment_Newton_param": "dif_strip is used for numerical differentiation(if it's enabled)",
     "sigma": -1,
     "omega": 0,
     "inc_param": 1,
     "var_param": 0,
-    "delta_inc": 0.01,
-    "inc_iter": 1000,
-    "max_iter": 16,
-    "dif_strip": 1e-04,
+    "delta_inc": -0.0001,
+    "inc_iter": 20000,
+    "max_iter": 100,
     "eps": 1e-08,
     "explode": 100
 }

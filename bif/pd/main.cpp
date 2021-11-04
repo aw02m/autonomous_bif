@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
   std::cout << "p_sec def. : q(x) = x(" << ds.p_index << ") - " << ds.p_place
             << std::endl;
   std::cout << "params  : ";
-  std::cout << ds.params.transpose() << std::endl;
+  std::cout << ds.p.transpose() << std::endl;
   std::cout << "x0  : ";
   std::cout << ds.x0.transpose() << std::endl;
   std::cout << "u0  : ";

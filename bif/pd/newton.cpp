@@ -1,11 +1,10 @@
 #include "newton.hpp"
-#include "ds_func.hpp"
 #include "dynamical_system.hpp"
 #include <fstream>
 
 void newton(dynamical_system &ds) {
   Eigen::VectorXd vp(ds.xdim + 1);
-  vp << ds.u0, ds.tauk, ds.params(ds.var_param);
+  vp << ds.u0, ds.tauk, ds.p(ds.var_param);
   Eigen::VectorXd vn(ds.xdim + 1);
   Eigen::VectorXd F(ds.xdim + 1);
   Eigen::MatrixXd J(ds.xdim + 1, ds.xdim + 1);
@@ -13,10 +12,8 @@ void newton(dynamical_system &ds) {
   double norm;
   Eigen::IOFormat Comma(8, 0, ", ", "\n", "[", "]");
   std::vector<Eigen::VectorXd> bifset(ds.inc_iter,
-                                      Eigen::VectorXd::Zero(ds.params.size()));
+                                      Eigen::VectorXd::Zero(ds.p.size()));
   bool exit_flag = false;
-
-  store_constant_state(ds);
 
   for (int p = 0; p < ds.inc_iter; p++) {
     if (exit_flag) {
@@ -26,13 +23,16 @@ void newton(dynamical_system &ds) {
     }
     auto start = std::chrono::system_clock::now();
     for (int i = 0; i < ds.max_iter; i++) {
-      store_state(vp, ds);
-
-      F = func_newton(ds);
-      J = jac_newton(ds);
+      auto FJ = ds.newton_FJ(vp);
+      F = std::get<0>(FJ);
+      J = std::get<1>(FJ);
       vn = Eigen::ColPivHouseholderQR<Eigen::MatrixXd>(J).solve(-F) + vp;
-
       norm = (vn - vp).norm();
+      // debug(F);
+      // debug(J);
+      // debug(vp);
+      // debug(vn);
+      // debug(norm);
       if (norm < ds.eps) {
         auto end = std::chrono::system_clock::now();
         auto dur = end - start;
@@ -42,23 +42,21 @@ void newton(dynamical_system &ds) {
                   << std::endl;
         std::cout << p << " : converged (iter = " << i + 1 << ", ";
         std::cout << "time = " << msec << "[msec])" << std::endl;
-        std::cout << "params : " << ds.params.transpose().format(Comma)
+        std::cout << "params : " << ds.p.transpose().format(Comma) << std::endl;
+        std::cout << "x0     : "
+                  << ds.h_inv(vn(Eigen::seqN(0, ds.udim))).transpose().format(Comma)
                   << std::endl;
-        std::cout
-            << "x0     : "
-            << h_inv(vn(Eigen::seqN(0, ds.udim)), ds).transpose().format(Comma)
-            << std::endl;
         std::cout << "tau    : " << vn(ds.udim) << std::endl;
         std::cout << "(Re(μ), Im(μ)), abs(μ), arg(μ) :" << std::endl;
-        for (int k = 0; k < ds.udim; k++) {
+        for (int k = 0; k < ds.xdim; k++) {
           std::cout << ds.eigvals(k) << ", ";
           std::cout << std::abs(ds.eigvals(k)) << ", ";
           std::cout << std::arg(ds.eigvals(k)) * (180 / EIGEN_PI) << std::endl;
         }
         std::cout << "**************************************************"
                   << std::endl;
-        ds.params(ds.var_param) = vn(ds.xdim);
-        bifset[p] = ds.params;
+        ds.p(ds.var_param) = vn(ds.xdim);
+        bifset[p] = ds.p;
         vp = vn;
         break;
       } else if (norm >= ds.explode) {
@@ -66,7 +64,6 @@ void newton(dynamical_system &ds) {
         exit_flag = true;
         break;
       }
-
       if (i >= ds.max_iter - 1) {
         std::cerr << "iter over (iter = " << i + 1 << ")" << std::endl;
         exit_flag = true;
@@ -74,7 +71,7 @@ void newton(dynamical_system &ds) {
       }
       vp = vn;
     }
-    ds.params[ds.inc_param] += ds.delta_inc;
+    ds.p[ds.inc_param] += ds.delta_inc;
   }
 
   std::ofstream f;
