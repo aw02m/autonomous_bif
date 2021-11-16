@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
   if (ds.use_classic_rk != false) {
     std::cout << "classic runge-kutta 4(5)" << std::endl;
   } else {
-    std::cout << "runge-kutta-fehlberg 5(6)" << std::endl;
+    std::cout << "runge-kutta-dormand-prince 5(6)" << std::endl;
   }
   std::cout << "increment parameter : " << ds.inc_param << std::endl;
   std::cout << "system dimention : " << ds.xdim << std::endl;

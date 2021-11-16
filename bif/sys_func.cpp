@@ -1,7 +1,7 @@
 #include "dynamical_system.hpp"
 
-void dynamical_system::function(double t, const Eigen::VectorXd &x,
-                                Eigen::VectorXd &dxdt) {
+void dynamical_system::operator()(const Eigen::VectorXd &x,
+                                Eigen::VectorXd &dxdt, const double /*t*/) {
   // rossler
   f(0) = -x(1) - x(2);
   f(1) = x(0) + p(0) * x(1);

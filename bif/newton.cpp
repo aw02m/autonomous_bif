@@ -5,19 +5,10 @@
 
 void newton(dynamical_system &ds) {
   unsigned int target_dim;
-  switch (ds.mode) {
-  case 0:
-    target_dim = ds.xdim + 1;
-    break;
-  case 1:
-    target_dim = ds.xdim + 3;
-    break;
-  case 2:
+  if (ds.mode != 0) {
     target_dim = ds.xdim + 2;
-    break;
-  case 3:
-    target_dim = ds.xdim + 3;
-    break;
+  } else {
+    target_dim = ds.xdim + 1;
   }
   Eigen::VectorXd vp(target_dim);
   Eigen::VectorXd vn(target_dim);
@@ -32,20 +23,8 @@ void newton(dynamical_system &ds) {
 
   vp(Eigen::seqN(0, ds.xdim)) = ds.x0;
   vp(ds.xdim) = ds.tau;
-  switch (ds.mode) {
-  case 0:
-    break;
-  case 1:
+  if (ds.mode != 0) {
     vp(ds.xdim + 1) = ds.p(ds.var_param);
-    vp(ds.xdim + 2) = 1;
-    break;
-  case 2:
-    vp(ds.xdim + 1) = ds.p(ds.var_param);
-    break;
-  case 3:
-    vp(ds.xdim + 1) = ds.p(ds.var_param);
-    vp(ds.xdim + 2) = ds.theta;
-    break;
   }
 
   for (int p = 0; p < ds.inc_iter; p++) {

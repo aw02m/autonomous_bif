@@ -2,11 +2,15 @@
 #define DYNAMICAL_SYSTEM_HPP_
 
 #include "sys_common.hpp"
+#include <boost/numeric/odeint.hpp>
+#include <boost/numeric/odeint/external/eigen/eigen.hpp>
 #include <nlohmann/json.hpp>
 
 class dynamical_system {
 public:
   dynamical_system(nlohmann::json json);
+  void operator()(const Eigen::VectorXd &x, Eigen::VectorXd &dxdt,
+                  const double /*t*/);
   std::tuple<Eigen::VectorXd, Eigen::MatrixXd>
   newton_FJ(const Eigen::VectorXd &v);
 
@@ -15,18 +19,16 @@ public:
   std::string json_out_path;
 
   unsigned int xdim;
+  unsigned int bialt_dim;
   unsigned int period;
   unsigned int p_index;
   double p_place;
 
   // RK param
   bool use_classic_rk;
-  unsigned int rk_div;
-  double rkf_first_h;
-  double rkf_h_max;
-  double rkf_h_min;
-  double rkf_tol;
-  unsigned int rkf_false_iter;
+  double rk_h;
+  double rk_atol;
+  double rk_rtol;
 
   // Newton param
   unsigned int inc_param;
@@ -40,9 +42,9 @@ public:
   Eigen::VectorXd x0;
   double tau;
   Eigen::VectorXd p;
-  double theta;
 
   Eigen::MatrixXcd eigvals;
+  double theta;
 
 private:
   std::vector<Eigen::VectorXd> xk;
@@ -52,7 +54,6 @@ private:
   Eigen::VectorXd dfdlambda;
   std::vector<Eigen::MatrixXd> dfdxdx;
   Eigen::MatrixXd dfdxdlambda;
-
 
   Eigen::MatrixXd dphidx;
   Eigen::VectorXd dphidlambda;
@@ -76,13 +77,10 @@ private:
   Eigen::MatrixXd dTdxdlambda;
 
   Eigen::dcomplex mu;
-  Eigen::MatrixXcd chara_poly;
+  Eigen::MatrixXd chara_poly;
 
-  void function(double t, const Eigen::VectorXd &x, Eigen::VectorXd &dxdt);
   double q(const Eigen::VectorXd &x);
-  void integrate(double t_0, Eigen::VectorXd &x, double t_end);
-  Eigen::dcomplex det_derivative(const Eigen::MatrixXcd &A,
-                                 const Eigen::MatrixXcd &dA);
+  void rk45_classic(Eigen::VectorXd &x, double t0, double t_end);
 
   void store_constant_state();
   void store_states(const Eigen::VectorXd &v);

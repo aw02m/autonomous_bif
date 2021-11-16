@@ -1,6 +1,6 @@
 {
     "_comment": "tick : rk step on pp.py",
-    "mode": 3,
+    "mode": 2,
     "out_path": "../output/out",
     "json_out_path": "out.json",
     "tick": 0.01,
@@ -27,7 +27,6 @@
         0.136286,
         5.7
     ],
-    "theta": 3.14,
     "dparams": [
         0.01,
         0.01,
@@ -37,20 +36,16 @@
     "p_index": 1,
     "p_place": 0,
     "period": 1,
-    "_comment_RKF_param": "use_classic_rk : 0.RKF56, !0.Classic RK45, tol : tolerance",
-    "use_classic_rk": false,
-    "rk_div": 64,
-    "rkf_first_h": 0.01,
-    "rkf_h_max": 0.1,
-    "rkf_h_min": 1e-04,
-    "rkf_tol": 0.1,
-    "rkf_false_iter": 32,
+    "use_classic_rk": true,
+    "rk_h": 0.01,
+    "rk_atol": 1.0e-03,
+    "rk_rtol": 1.0e-03,
     "_comment_Newton_param": "dif_strip is used for numerical differentiation(if it's enabled)",
     "inc_param": 1,
     "var_param": 0,
     "delta_inc": 0.0001,
-    "inc_iter": 100,
+    "inc_iter": 10000,
     "max_iter": 100,
-    "eps": 1e-08,
-    "explode": 100
+    "eps": 1e-05,
+    "explode": 1000
 }
