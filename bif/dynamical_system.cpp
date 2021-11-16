@@ -323,7 +323,7 @@ void dynamical_system::rk45_classic(Eigen::VectorXd &x, double t0,
 
   while (!end_flag) {
     if (t + h > t_end) {
-      h = t_end - (t + h);
+      h = t_end - t;
       end_flag = true;
     }
     this->operator()(x, k1, t);
