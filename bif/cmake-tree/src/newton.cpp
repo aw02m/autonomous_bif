@@ -87,7 +87,7 @@ void newton(dynamical_system &ds) {
   // output
   if (ds.mode != 0) {
     ds.p(ds.var_param) = vn(ds.xdim + 1);
-    if (ds.mode = 3)
+    if (ds.mode == 3)
       ds.theta = vn(ds.xdim + 2);
     Eigen::IOFormat Out(Eigen::FullPrecision, 0, " ", "\n", " ", " ");
     std::ofstream f;

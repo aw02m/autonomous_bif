@@ -3,13 +3,24 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 
-Eigen::VectorXd dynamical_system::func(double t, const Eigen::VectorXd &x) {
+Eigen::VectorXd dynamical_system::func([[maybe_unused]] double t,
+                                       const Eigen::VectorXd &x) {
   Eigen::VectorXd ret(xdim);
 
   // rossler
   ret(0) = -x(1) - x(2);
   ret(1) = x(0) + params(0) * x(1);
   ret(2) = params(1) * x(0) - params(2) * x(2) + x(0) * x(2);
+
+  // bvp
+  // ret(0) = -x(2) + params(0) * x(0) + std::tanh(params(1) * x(0));
+  // ret(1) = x(2) - params(2) * x(1);
+  // ret(2) = x(0) - x(1);
+
+  // sprott
+  // ret(0) = x(1);
+  // ret(1) = x(2) + params(1);
+  // ret(2) = -x(1) + 0.1 * x(0) * x(0) + 1.1 * x(0) * x(2) + params(0);
 
   return ret;
 }
@@ -128,7 +139,7 @@ void dynamical_system::integrate(double t0, const Eigen::VectorXd &x,
       if (qprod < 0 &&
           (direction < 0 ? next_state(p_index) - state(p_index)
                          : state(p_index) - next_state(p_index)) < 0 &&
-          (next_state - state).norm() > 0.1) {
+          (next_state - state).norm() > 0.01) {
         hit_section = true;
         next_state = state;
         continue;
@@ -191,7 +202,7 @@ void dynamical_system::integrate_rk45(double t0, const Eigen::VectorXd &x,
   double h = (t_end - t0) / rk_div;
   hit_section = false;
 
-  for (int i = 0; i < rk_div; i++) {
+  for (int i = 0; i < (int)rk_div; i++) {
     k.col(0) = func(t0, state);
     temp = state + h * 0.5 * k.col(0);
     k.col(1) = func(t0 + h * 0.5, temp);

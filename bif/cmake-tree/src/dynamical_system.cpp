@@ -290,20 +290,49 @@ Eigen::MatrixXd dynamical_system::newton_J_fix() {
   return ret;
 }
 
+// void dynamical_system::store_states_eqp(const Eigen::VectorXd &v) {
+//   Eigen::MatrixXd I = Eigen::MatrixXd::Identity(xdim, xdim);
+//   Eigen::VectorXd state(xdim + size_dphidx);
+
+//   xk[0] = v(Eigen::seqN(0, xdim));
+
+//   unsigned int counter = 0;
+//   xk[1] = state(Eigen::seqN(counter, xdim));
+//   counter += xdim;
+
+//   this->operator()(x, k1, t);
+
+//   // Find the argument <theta> of the characteristic constant
+//   // whose absolute value is closest to 1.
+//   eigvals = Eigen::EigenSolver<Eigen::MatrixXd>(dTdx).eigenvalues();
+//   unsigned int target_index = 0;
+//   double delta = std::abs(eigvals(0)) - 1.0;
+//   double delta_buf = 0;
+//   for (int i = 1; i < xdim; i++) {
+//     delta_buf = std::abs(eigvals(i)) - 1.0;
+//     if (delta_buf < delta) {
+//       target_index = i;
+//     }
+//   }
+// }
+
 std::tuple<Eigen::VectorXd, Eigen::MatrixXd>
 dynamical_system::newton_FJ(const Eigen::VectorXd &v) {
   store_constant_state();
   switch (mode) {
-  case 0:
-    store_states_fix(v);
-    return std::make_tuple(newton_F_fix(), newton_J_fix());
-  case 2:
-    store_states(v);
-    return std::make_tuple(newton_F_PD(), newton_J_PD());
   case 1:
   case 3:
     store_states(v);
     return std::make_tuple(newton_F_NS(), newton_J_NS());
+  case 2:
+    store_states(v);
+    return std::make_tuple(newton_F_PD(), newton_J_PD());
+  case 0:
+    store_states_fix(v);
+    return std::make_tuple(newton_F_fix(), newton_J_fix());
+  // case 4:
+  //   store_states_eqp(v):
+  //   return std::make_tuple(newton_F_eqp(), newton_J_eqp());
   }
   // exception
   return std::make_tuple(Eigen::VectorXd::Zero(xdim),
