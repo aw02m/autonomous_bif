@@ -38,7 +38,7 @@ public:
   double poincare_eps;
 
   Eigen::VectorXd x0;
-  Eigen::VectorXd params;
+  Eigen::VectorXd p;
   double tau = 0;
 
   Eigen::VectorXd last_state;

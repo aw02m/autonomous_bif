@@ -1,29 +1,8 @@
 #include "dynamical_system.hpp"
 #include <fstream>
 #include <iostream>
+#include <math.h>
 #include <nlohmann/json.hpp>
-
-Eigen::VectorXd dynamical_system::func([[maybe_unused]] double t,
-                                       const Eigen::VectorXd &x) {
-  Eigen::VectorXd ret(xdim);
-
-  // rossler
-  ret(0) = -x(1) - x(2);
-  ret(1) = x(0) + params(0) * x(1);
-  ret(2) = params(1) * x(0) - params(2) * x(2) + x(0) * x(2);
-
-  // bvp
-  // ret(0) = -x(2) + params(0) * x(0) + std::tanh(params(1) * x(0));
-  // ret(1) = x(2) - params(2) * x(1);
-  // ret(2) = x(0) - x(1);
-
-  // sprott
-  // ret(0) = x(1);
-  // ret(1) = x(2) + params(1);
-  // ret(2) = -x(1) + 0.1 * x(0) * x(0) + 1.1 * x(0) * x(2) + params(0);
-
-  return ret;
-}
 
 double dynamical_system::q(const Eigen::VectorXd &x) {
   return x(p_index) - p_place;
@@ -71,7 +50,7 @@ dynamical_system::dynamical_system(const std::string &json_location) {
 
   std::vector<double> params_arr = json["params"];
   Eigen::Map<Eigen::VectorXd> params(params_arr.data(), params_arr.size());
-  this->params = params;
+  this->p = params;
 
   dqdx = Eigen::MatrixXd::Zero(1, xdim);
   dqdx(p_index) = 1.0;

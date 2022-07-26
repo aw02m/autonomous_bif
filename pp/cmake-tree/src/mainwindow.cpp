@@ -118,17 +118,18 @@ void MainWindow::mousePress(QMouseEvent *event) {
 void MainWindow::keyPressEvent(QKeyEvent *event) {
   static unsigned int param_index = 0;
   static Eigen::IOFormat Comma(8, 0, ", ", "\n", "[", "]");
+  std::cout << std::fixed << std::setprecision(8);
   switch (event->key()) {
   case Qt::Key_Left:
     if (param_index == 0) {
-      param_index = ds.params.size() - 1;
+      param_index = ds.p.size() - 1;
     } else {
       param_index--;
     }
     std::cout << "parameter index changed : " << param_index << std::endl;
     break;
   case Qt::Key_Right:
-    if (param_index == ds.params.size() - 1) {
+    if (param_index == ds.p.size() - 1) {
       param_index = 0;
     } else {
       param_index++;
@@ -136,18 +137,18 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
     std::cout << "parameter index changed : " << param_index << std::endl;
     break;
   case Qt::Key_Up:
-    ds.params(param_index) += ds.dparams[param_index];
-    std::cout << param_index << ":" << ds.params.transpose().format(Comma)
+    ds.p(param_index) += ds.dparams[param_index];
+    std::cout << param_index << ":" << ds.p.transpose().format(Comma)
               << std::endl;
     break;
   case Qt::Key_Down:
-    ds.params(param_index) -= ds.dparams[param_index];
-    std::cout << param_index << ":" << ds.params.transpose().format(Comma)
+    ds.p(param_index) -= ds.dparams[param_index];
+    std::cout << param_index << ":" << ds.p.transpose().format(Comma)
               << std::endl;
     break;
   case Qt::Key_Space:
     std::cout << "state : " << ds.x0.transpose().format(Comma) << std::endl;
-    std::cout << "param : " << ds.params.transpose().format(Comma) << std::endl;
+    std::cout << "param : " << ds.p.transpose().format(Comma) << std::endl;
     std::cout << "tau   : " << ds.tau << " (" << ds.period << "-period)"
               << std::endl;
     break;
@@ -174,6 +175,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
     ds.QCPCsol.clear();
     ds.QCPGpoincare.clear();
     ds.tau = 0;
+    break;
+  case Qt::Key_S:
+    std::cout << "last state: " << ds.last_state.transpose().format(Comma)
+              << std::endl;
     break;
   case Qt::Key_T:
     show_trajectory = !show_trajectory;

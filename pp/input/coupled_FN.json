@@ -1,0 +1,64 @@
+{
+    "_comment": "tick : rk step on pp.py",
+    "tick": 0.05,
+    "axis": [
+        0,
+        1
+    ],
+    "xrange": [
+        -2.5,
+        2.5
+    ],
+    "yrange": [
+        -2.5,
+        2.5
+    ],
+    "x0": [
+        0.9251436753212715,
+        -1.5464637499787832,
+        0.7046029515013381,
+        -1.1778094059244166
+    ],
+    "tau": 4.3502,
+    "params": [
+        -0.053497921583712,
+        -1.326999999999964,
+        0.333333330000000,
+        1.000000000000000,
+        10.000000000000000
+    ],
+    "dparams": [
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01
+    ],
+    "_comment_poincare_section": "poincare section (x[[p_index]]-[p_place] = 0)",
+    "p_index": 0,
+    "p_place": 0,
+    "direction": -1,
+    "period": 1,
+    "_comment_RKF_param": "use_classic_rk : false.RKF56, true.Classic RK45, tol : tolerance",
+    "max_plot": 1000,
+    "max_poincare_plot": 2,
+    "use_classic_rk": false,
+    "rk_div": 50,
+    "rkf_first_h": 0.0001,
+    "rkf_h_max": 0.01,
+    "rkf_h_min": 1e-04,
+    "rkf_tol": 0.5,
+    "rkf_false_iter": 256,
+    "poincare_eps": 1.0e-04,
+    "_comment_Newton_param": "dif_strip is used for numerical differentiation(if it's enabled)",
+    "sigma": -1,
+    "omega": 0,
+    "inc_param": 1,
+    "var_param": 0,
+    "delta_inc": 0.01,
+    "inc_iter": 1000,
+    "max_iter": 16,
+    "dif_strip": 1e-04,
+    "eps": 1e-08,
+    "explode": 100
+}
