@@ -83,6 +83,7 @@ private:
   double q(const Eigen::VectorXd &x);
   void rk45_classic(Eigen::VectorXd &x, double t0, double t_end);
 
+  void sys_func(const Eigen::VectorXd &x, const double /*t*/);
   void store_constant_state();
   void store_states(const Eigen::VectorXd &v);
   void store_states_numeric(const Eigen::VectorXd &v);
