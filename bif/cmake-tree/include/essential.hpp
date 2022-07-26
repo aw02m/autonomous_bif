@@ -48,7 +48,72 @@ Eigen::MatrixXd bialt_prod(const Eigen::MatrixXd &A, const Eigen::MatrixXd &B,
   return ret;
 }
 
-Eigen::MatrixXd bialt_prod_square(const Eigen::MatrixXd &A, int xdim, int bialt_dim) {
+Eigen::MatrixXd biproduct(const Eigen::MatrixXd &A, int xdim, int bialt_dim) {
+  Eigen::MatrixXd ret(bialt_dim, bialt_dim);
+
+  int row = 0;
+  int col = 0;
+  for (int p = 1; p < xdim; p++) {
+    for (int q = 0; q < p; q++) {
+      for (int r = 1; r < xdim; r++) {
+        for (int s = 0; s < r; s++) {
+          if (r == q) {
+            ret(row, col++) = -A(p, s);
+          } else if (r != p && s == q) {
+            ret(row, col++) = A(p, r);
+          } else if (r == p && s == q) {
+            ret(row, col++) = A(p, p) + A(q, q);
+          } else if (r == p && s != q) {
+            ret(row, col++) = A(q, s);
+          } else if (s == p) {
+            ret(row, col++) = -A(q, r);
+          } else {
+            ret(row, col++) = 0;
+          }
+        }
+      }
+      col = 0;
+      row++;
+    }
+  }
+
+  return ret;
+}
+
+Eigen::MatrixXd biproduct_derivative(const Eigen::MatrixXd &dA, int xdim, int bialt_dim) {
+  Eigen::MatrixXd ret(bialt_dim, bialt_dim);
+
+  int row = 0;
+  int col = 0;
+  for (int p = 1; p < xdim; p++) {
+    for (int q = 0; q < p; q++) {
+      for (int r = 1; r < xdim; r++) {
+        for (int s = 0; s < r; s++) {
+          if (r == q) {
+            ret(row, col++) = -dA(p, s);
+          } else if (r != p && s == q) {
+            ret(row, col++) = dA(p, r);
+          } else if (r == p && s == q) {
+            ret(row, col++) = dA(p, p) + dA(q, q);
+          } else if (r == p && s != q) {
+            ret(row, col++) = dA(q, s);
+          } else if (s == p) {
+            ret(row, col++) = -dA(q, r);
+          } else {
+            ret(row, col++) = 0;
+          }
+        }
+      }
+      col = 0;
+      row++;
+    }
+  }
+
+  return ret;
+}
+
+Eigen::MatrixXd bialt_prod_square(const Eigen::MatrixXd &A, int xdim,
+                                  int bialt_dim) {
   Eigen::MatrixXd ret(bialt_dim, bialt_dim);
 
   int row = 0;
@@ -75,8 +140,7 @@ Eigen::MatrixXd bialt_prod_square(const Eigen::MatrixXd &A, int xdim, int bialt_
 
 Eigen::MatrixXd bialt_prod_square_derivative(const Eigen::MatrixXd &A,
                                              const Eigen::MatrixXd &dA,
-                                             int xdim,
-                                             int bialt_dim) {
+                                             int xdim, int bialt_dim) {
   Eigen::MatrixXd ret(bialt_dim, bialt_dim);
 
   int row = 0;

@@ -2,7 +2,7 @@
     "_comment": "tick : rk step on pp.py",
     "mode": 2,
     "out_path": "../output/out",
-    "json_out_path": "out.json",
+    "json_out_path": "../output/out.json",
     "tick": 0.01,
     "axis": [
         0,
@@ -46,6 +46,6 @@
     "delta_inc": 0.0001,
     "inc_iter": 10000,
     "max_iter": 100,
-    "eps": 1e-05,
+    "eps": 1e-08,
     "explode": 1000
 }

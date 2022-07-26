@@ -2,20 +2,26 @@ cmake_minimum_required(VERSION 3.21)
 
 project(discrete_bif LANGUAGES CXX)
 
+# set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wextra -pedantic -Wcast-align -Wcast-qual -Wconversion -Wdisabled-optimization -Wendif-labels -Wfloat-equal -Winit-self -Winline -Wlogical-op -Wmissing-include-dirs -Wnon-virtual-dtor -Wold-style-cast -Woverloaded-virtual -Wpacked -Wpointer-arith -Wredundant-decls -Wshadow -Wsign-promo -Wswitch-default -Wswitch-enum -Wunsafe-loop-optimizations -Wvariadic-macros -Wwrite-strings ")
+set(CMAKE_CXX_FLAGS_DEBUG "-g3 -O0 -pg")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g3 -Og -pg")
+set(CMAKE_CXX_FLAGS_MINSIZEREL "-Os -DNDEBUG")
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ### INCLUSION OF Numerical Libs
 find_package (Eigen3 REQUIRED)
 find_package (nlohmann_json REQUIRED)
-set(Boost_USE_STATIC_LIBS        ON)  # only find static libs
-set(Boost_USE_DEBUG_LIBS        OFF)  # ignore debug libs and
-set(Boost_USE_RELEASE_LIBS       ON)  # only find release libs
-set(Boost_USE_MULTITHREADED      ON)
-set(Boost_USE_STATIC_RUNTIME    OFF)
-find_package(Boost REQUIRED)
-include_directories("${Boost_INCLUDE_DIRS}")
-link_directories("${Boost_LIBRARY_DIR}")
+# set(Boost_USE_STATIC_LIBS        ON)  # only find static libs
+# set(Boost_USE_DEBUG_LIBS        OFF)  # ignore debug libs and
+# set(Boost_USE_RELEASE_LIBS       ON)  # only find release libs
+# set(Boost_USE_MULTITHREADED      ON)
+# set(Boost_USE_STATIC_RUNTIME    OFF)
+# find_package(Boost REQUIRED)
+# include_directories("${Boost_INCLUDE_DIRS}")
+# link_directories("${Boost_LIBRARY_DIR}")
 
 
 ### INCLUSION OF Project Files
@@ -40,7 +46,7 @@ target_include_directories(main PRIVATE ${SOURCE_DIR})
 target_link_libraries (main PRIVATE
   Eigen3::Eigen
   nlohmann_json::nlohmann_json
-  ${Boost_LIBRARIES}
+  # ${Boost_LIBRARIES}
 )
 
 # target_compile_options(main PUBLIC -O3 -mtune=native -march=native -mfpmath=both)

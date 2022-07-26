@@ -2,8 +2,6 @@
 #define DYNAMICAL_SYSTEM_HPP_
 
 #include "sys_common.hpp"
-#include <boost/numeric/odeint.hpp>
-#include <boost/numeric/odeint/external/eigen/eigen.hpp>
 #include <nlohmann/json.hpp>
 
 class dynamical_system {
@@ -36,6 +34,8 @@ public:
   double delta_inc;
   unsigned int inc_iter;
   unsigned int max_iter;
+  bool numerical_diff;
+  double diff_strip;
   double eps;
   double explode;
 
@@ -70,8 +70,9 @@ private:
   Eigen::VectorXd dTdtau;
   Eigen::VectorXd dTdlambda;
   Eigen::MatrixXd dqdx;
-  Eigen::MatrixXd dqdtau;
-  Eigen::MatrixXd dqdlambda;
+  Eigen::MatrixXd dpidx;
+  Eigen::MatrixXd dpidtau;
+  Eigen::MatrixXd dpidlambda;
   std::vector<Eigen::MatrixXd> dTdxdx;
   Eigen::MatrixXd dTdxdtau;
   Eigen::MatrixXd dTdxdlambda;
@@ -84,15 +85,21 @@ private:
 
   void store_constant_state();
   void store_states(const Eigen::VectorXd &v);
+  void store_states_numeric(const Eigen::VectorXd &v);
   void store_states_fix(const Eigen::VectorXd &v);
-  Eigen::VectorXd newton_F_fix();
-  Eigen::MatrixXd newton_J_fix();
-  Eigen::VectorXd newton_F_G();
-  Eigen::MatrixXd newton_J_G();
-  Eigen::VectorXd newton_F_PD();
-  Eigen::MatrixXd newton_J_PD();
+  void store_states_eqp(const Eigen::VectorXd &v);
+  Eigen::VectorXd newton_F();
+  Eigen::MatrixXd newton_J();
   Eigen::VectorXd newton_F_NS();
   Eigen::MatrixXd newton_J_NS();
+  Eigen::VectorXd newton_F_fix();
+  Eigen::MatrixXd newton_J_fix();
+  Eigen::VectorXd newton_F_eqp();
+  Eigen::MatrixXd newton_J_eqp();
+  Eigen::VectorXd newton_F_eqp_H();
+  Eigen::MatrixXd newton_J_eqp_H();
+  Eigen::VectorXd newton_F_eqp_G();
+  Eigen::MatrixXd newton_J_eqp_G();
 };
 
 #endif

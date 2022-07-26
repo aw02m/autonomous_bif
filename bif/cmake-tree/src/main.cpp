@@ -21,6 +21,22 @@ int main(int argc, char *argv[]) {
   std::cout << "**************************************************"
             << std::endl;
   std::cout << "<initial condition>" << std::endl;
+  std::cout << "mode : " << std::to_string(ds.mode);
+  switch(ds.mode){
+    case 0:
+    std::cout << " (Fixed Point)";
+    break;
+    case 1:
+    std::cout << " (Tangent Bif)";
+    break;
+    case 2:
+    std::cout << " (Period-Doubling)";
+    break;
+    case 3:  
+    std::cout << " (Neimark-Sacker)";
+    break;
+  }
+  std::cout << std::endl;
   std::cout << "ode solver : ";
   if (ds.use_classic_rk != false) {
     std::cout << "classic runge-kutta 4(5)" << std::endl;
@@ -32,12 +48,12 @@ int main(int argc, char *argv[]) {
   std::cout << "period : " << ds.period << std::endl;
   std::cout << "p_sec def. : q(x) = x(" << ds.p_index << ") - " << ds.p_place
             << std::endl;
-  std::cout << "params  : ";
-  std::cout << ds.p.transpose() << std::endl;
   std::cout << "x0  : ";
   std::cout << ds.x0.transpose() << std::endl;
   std::cout << "tau : ";
   std::cout << ds.tau << std::endl;
+  std::cout << "params  : ";
+  std::cout << ds.p.transpose() << std::endl;
   std::cout << "theta : ";
   std::cout << ds.theta << std::endl;
   std::cout << "**************************************************"
