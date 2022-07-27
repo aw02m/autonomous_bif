@@ -128,6 +128,7 @@ void dynamical_system::store_states(const Eigen::VectorXd &v) {
   dTdxdlambda = dphidxdlambda;
 
   eigvals = Eigen::EigenSolver<Eigen::MatrixXd>(dTdx).eigenvalues();
+  theta = std::arg(eigvals(nearest_idx(eigvals, 0)));
 
   switch (mode) {
   case 1:
@@ -224,6 +225,7 @@ void dynamical_system::store_states_numeric(const Eigen::VectorXd &v) {
   dTdxdlambda = dphidxdlambda;
 
   eigvals = Eigen::EigenSolver<Eigen::MatrixXd>(dTdx).eigenvalues();
+  theta = std::arg(eigvals(nearest_idx(eigvals, 0)));
 
   switch (mode) {
   case 1:
@@ -345,19 +347,8 @@ void dynamical_system::store_states_fix(const Eigen::VectorXd &v) {
   dpidx = dqdx * dphidx;
   dpidtau = dqdx * f;
 
-  // Find the argument <theta> of the characteristic constant
-  // whose absolute value is closest to 1.
   eigvals = Eigen::EigenSolver<Eigen::MatrixXd>(dTdx).eigenvalues();
-  unsigned int target_index = 0;
-  double delta = std::abs(eigvals(0)) - 1.0;
-  double delta_buf = 0;
-  for (int i = 1; i < xdim; i++) {
-    delta_buf = std::abs(eigvals(i)) - 1.0;
-    if (delta_buf < delta) {
-      target_index = i;
-    }
-  }
-  theta = std::arg(eigvals(target_index));
+  theta = std::arg(eigvals(nearest_idx(eigvals, 0)));
 }
 
 Eigen::VectorXd dynamical_system::newton_F_fix() {
@@ -386,26 +377,17 @@ void dynamical_system::store_states_eqp(const Eigen::VectorXd &v) {
 
   Eigen::VectorXd dummy = Eigen::VectorXd::Zero(xdim);
   double t = 0;
-  this->operator()(xk[0], dummy, t);
+  sys_func(xk[0], t);
 
-  // Find the argument <theta> of the characteristic constant
-  // whose absolute value is closest to 0.
   eigvals = Eigen::EigenSolver<Eigen::MatrixXd>(dfdx).eigenvalues();
-  unsigned int target_index = 0;
-  double delta = std::abs(eigvals(0).real()) - 0;
-  for (int i = 1; i < xdim; i++) {
-    if (std::abs(eigvals(i).real()) < delta) {
-      target_index = i;
-      delta = std::abs(eigvals(i).real()) - 0;
-    }
-  }
-  theta = std::arg(eigvals(target_index));
+  theta = std::arg(eigvals(nearest_idx(eigvals, 0)));
 
   switch (mode) {
   case 5:
     chara_poly = dfdx;
     break;
   case 4:
+    break;
   case 6:
     Eigen::MatrixXd I = Eigen::MatrixXd::Identity(xdim, xdim);
     chara_poly = biproduct(dfdx, xdim, bialt_dim);
@@ -532,6 +514,7 @@ void dynamical_system::rk45_classic(Eigen::VectorXd &x, double t0,
 
 void dynamical_system::operator()(const Eigen::VectorXd &x,
                                   Eigen::VectorXd &dxdt, const double t) {
+  // store system function f and its derivative df/d*
   sys_func(x, t);
   if (mode != 4 && mode != 5 && mode != 6) { // no VE for eqp analysis
     unsigned int counter = xdim;

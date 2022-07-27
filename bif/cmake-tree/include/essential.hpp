@@ -1,7 +1,7 @@
 #include <eigen3/Eigen/Dense>
 
 double det_derivative(const Eigen::MatrixXd &A, const Eigen::MatrixXd &dA,
-                      int dim) {
+                      unsigned int dim) {
   Eigen::MatrixXd temp(dim, dim);
   double ret = 0;
 
@@ -15,7 +15,7 @@ double det_derivative(const Eigen::MatrixXd &A, const Eigen::MatrixXd &dA,
 }
 
 Eigen::MatrixXd bialt_prod(const Eigen::MatrixXd &A, const Eigen::MatrixXd &B,
-                           int xdim, int bialt_dim) {
+                           unsigned int xdim, unsigned int bialt_dim) {
   Eigen::MatrixXd ret(bialt_dim, bialt_dim);
 
   int row = 0;
@@ -48,7 +48,8 @@ Eigen::MatrixXd bialt_prod(const Eigen::MatrixXd &A, const Eigen::MatrixXd &B,
   return ret;
 }
 
-Eigen::MatrixXd biproduct(const Eigen::MatrixXd &A, int xdim, int bialt_dim) {
+Eigen::MatrixXd biproduct(const Eigen::MatrixXd &A, unsigned int xdim,
+                          unsigned int bialt_dim) {
   Eigen::MatrixXd ret(bialt_dim, bialt_dim);
 
   int row = 0;
@@ -80,7 +81,9 @@ Eigen::MatrixXd biproduct(const Eigen::MatrixXd &A, int xdim, int bialt_dim) {
   return ret;
 }
 
-Eigen::MatrixXd biproduct_derivative(const Eigen::MatrixXd &dA, int xdim, int bialt_dim) {
+Eigen::MatrixXd biproduct_derivative(const Eigen::MatrixXd &dA,
+                                     unsigned int xdim,
+                                     unsigned int bialt_dim) {
   Eigen::MatrixXd ret(bialt_dim, bialt_dim);
 
   int row = 0;
@@ -112,8 +115,8 @@ Eigen::MatrixXd biproduct_derivative(const Eigen::MatrixXd &dA, int xdim, int bi
   return ret;
 }
 
-Eigen::MatrixXd bialt_prod_square(const Eigen::MatrixXd &A, int xdim,
-                                  int bialt_dim) {
+Eigen::MatrixXd bialt_prod_square(const Eigen::MatrixXd &A, unsigned int xdim,
+                                  unsigned int bialt_dim) {
   Eigen::MatrixXd ret(bialt_dim, bialt_dim);
 
   int row = 0;
@@ -140,7 +143,8 @@ Eigen::MatrixXd bialt_prod_square(const Eigen::MatrixXd &A, int xdim,
 
 Eigen::MatrixXd bialt_prod_square_derivative(const Eigen::MatrixXd &A,
                                              const Eigen::MatrixXd &dA,
-                                             int xdim, int bialt_dim) {
+                                             unsigned int xdim,
+                                             unsigned int bialt_dim) {
   Eigen::MatrixXd ret(bialt_dim, bialt_dim);
 
   int row = 0;
@@ -168,4 +172,18 @@ Eigen::MatrixXd bialt_prod_square_derivative(const Eigen::MatrixXd &A,
   }
 
   return ret;
+}
+
+unsigned int nearest_idx(const Eigen::VectorXcd &array, double target_val) {
+  unsigned int target_index = 0;
+
+  double delta = std::abs(array(0).real()) - target_val;
+  for (int i = 1; i < array.rows(); i++) {
+    if (std::abs(array(i).real()) < delta) {
+      target_index = i;
+      delta = std::abs(array(i).real()) - target_val;
+    }
+  }
+
+  return target_index;
 }
