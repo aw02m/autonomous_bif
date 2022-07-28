@@ -121,8 +121,7 @@ void newton(dynamical_system &ds) {
                   << std::endl;
         std::cout << "tau    : " << vn(ds.xdim) << std::endl;
         std::cout << "params : " << ds.p.transpose().format(Comma) << std::endl;
-        std::cout << "theta  : " << ds.theta << std::endl;
-        std::cout << std::setprecision(4);
+        // std::cout << "theta  : " << ds.theta << std::endl;
         std::cout << "(Re(μ), Im(μ)), abs(μ), arg(μ) :" << std::endl;
         for (int k = 0; k < ds.xdim; k++) {
           std::cout << std::setprecision(8);

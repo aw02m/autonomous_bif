@@ -374,6 +374,9 @@ Eigen::MatrixXd dynamical_system::newton_J_fix() {
 
 void dynamical_system::store_states_eqp(const Eigen::VectorXd &v) {
   xk[0] = v(Eigen::seqN(0, xdim));
+  if (mode != 4) {
+    p(var_param) = v(xdim);
+  }
 
   Eigen::VectorXd dummy = Eigen::VectorXd::Zero(xdim);
   double t = 0;
@@ -383,13 +386,12 @@ void dynamical_system::store_states_eqp(const Eigen::VectorXd &v) {
   theta = std::arg(eigvals(nearest_idx(eigvals, 0)));
 
   switch (mode) {
+  case 4:
+    break;
   case 5:
     chara_poly = dfdx;
     break;
-  case 4:
-    break;
   case 6:
-    Eigen::MatrixXd I = Eigen::MatrixXd::Identity(xdim, xdim);
     chara_poly = biproduct(dfdx, xdim, bialt_dim);
     break;
   }
