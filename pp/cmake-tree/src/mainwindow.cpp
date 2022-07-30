@@ -69,8 +69,8 @@ void MainWindow::ppSlot() {
   }
 
   if (ds.is_hit_section()) {
-    ds.QCPGpoincare << QCPGraphData(ds.last_state(ds.axis[0]),
-                                    ds.last_state(ds.axis[1]));
+    // ds.QCPGpoincare << QCPGraphData(ds.last_state(ds.axis[0]),
+    // ds.last_state(ds.axis[1]));
     if (show_poincare)
       poincare->data()->set(ds.QCPGpoincare, true);
     if (period_counter++ > ds.period - 1) {
