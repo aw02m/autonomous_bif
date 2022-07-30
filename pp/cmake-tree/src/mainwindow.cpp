@@ -137,12 +137,12 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
     std::cout << "parameter index changed : " << param_index << std::endl;
     break;
   case Qt::Key_Up:
-    ds.p(param_index) += ds.dparams[param_index];
+    ds.p(param_index) += ds.delta_inc;
     std::cout << param_index << ":" << ds.p.transpose().format(Comma)
               << std::endl;
     break;
   case Qt::Key_Down:
-    ds.p(param_index) -= ds.dparams[param_index];
+    ds.p(param_index) -= ds.delta_inc;
     std::cout << param_index << ":" << ds.p.transpose().format(Comma)
               << std::endl;
     break;
@@ -192,6 +192,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
     break;
   case Qt::Key_Q:
     QApplication::exit();
+    break;
+  case Qt::Key_Minus:
+    ds.delta_inc /= 10;
+    std::cout << "delta_inc changed : " << ds.delta_inc << std::endl;
+    break;
+  case Qt::Key_Plus:
+    ds.delta_inc *= 10;
+    std::cout << "delta_inc changed : " << ds.delta_inc << std::endl;
     break;
   }
 }

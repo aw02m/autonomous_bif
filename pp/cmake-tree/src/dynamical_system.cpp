@@ -29,7 +29,6 @@ dynamical_system::dynamical_system(const std::string &json_location) {
   axis = json["axis"].get<std::vector<unsigned int>>();
   xrange = json["xrange"].get<std::vector<double>>();
   yrange = json["yrange"].get<std::vector<double>>();
-  dparams = json["dparams"].get<std::vector<double>>();
 
   max_plot = json["max_plot"];
   max_poincare_plot = json["max_poincare_plot"];
@@ -42,6 +41,7 @@ dynamical_system::dynamical_system(const std::string &json_location) {
   eps = json["eps"];
   explode = json["explode"];
   max_iter = json["max_iter"];
+  delta_inc = json["delta_inc"];
 
   /* These json array should be casted to the STL container type*/
   std::vector<double> fixed_arr = json["x0"];

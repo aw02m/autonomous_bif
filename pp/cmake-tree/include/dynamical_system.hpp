@@ -25,7 +25,6 @@ public:
   std::vector<unsigned int> axis;
   std::vector<double> xrange;
   std::vector<double> yrange;
-  std::vector<double> dparams;
   unsigned int max_plot;
   unsigned int max_poincare_plot;
   bool use_classic_rk;
@@ -37,6 +36,7 @@ public:
   double eps;
   double explode;
   unsigned int max_iter;
+  double delta_inc;
 
   Eigen::VectorXd x0;
   Eigen::VectorXd p;
