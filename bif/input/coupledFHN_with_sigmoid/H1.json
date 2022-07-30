@@ -1,5 +1,6 @@
 {
-    "mode": 2,
+    "comment": "0: fix, 1: G, 2: PD, 3: NS, 4: eqp, 5: eqpG, 6: eqpH",
+    "mode": 6,
     "out_path": "../output/out",
     "json_out_path": "../output/out.json",
     "tick": 0.01,
@@ -16,25 +17,18 @@
         2.5
     ],
     "x0": [
-        -4.231279e-05,
-        -1.9875428,
-        1.2965713,
-        -0.064225392
+        -0.8440485614378641, -1.0758162493702761, -0.5394313372667671, -0.8167995515187128
     ],
-    "tau": 2.13353,
+    "tau": 3.1886615408586056,
     "params": [
-        0.41,
-        -0.5,
-        0.33333333,
-        1,
-        10
+        0.3933020540423046,  0.8355957028318383,  0.3333333300000000,  1.0000000000000000, 10.0000000000000000
     ],
     "dparams": [
         0.01,
         0.01,
         0.01
     ],
-    "p_index": 0,
+    "p_index": 1,
     "p_place": 0,
     "period": 1,
     "use_classic_rk": true,
@@ -43,11 +37,11 @@
     "rk_rtol": 1.0e-06,
     "inc_param": 1,
     "var_param": 0,
-    "delta_inc": 0.002,
-    "inc_iter": 2000,
-    "max_iter": 32,
-    "numerical_diff": true,
+    "delta_inc": 0.0001,
+    "inc_iter": 15000,
+    "max_iter": 16,
+    "numerical_diff": false,
     "diff_strip": 1.0e-06,
     "eps": 1e-08,
-    "explode": 1
+    "explode": 100
 }
