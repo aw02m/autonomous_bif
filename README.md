@@ -34,27 +34,27 @@ Python上でSympyを用いて自動的に系のC++コードを出力します．
 * qt6
 
 ### pp入力ファイル概要
-* "tick" : 1フレームに描画する時刻の範囲．
-* "max_plot" : 解軌道を描画する最高打点数．
-* "max_poincare_plot" : Poincare写像の最高打点数．
-* "axis" : x/y軸それぞれに表示する変数．
-* "period" : 指定した整数に従って周期τを計算．
-* "xrange", "yrange" : x/y軸の描画範囲．
-* "x0" : 初期値．
-* "params" : パラメタ．
+* "tick" : 1フレームに描画する時刻の範囲
+* "max_plot" : 解軌道を描画する最高打点数
+* "max_poincare_plot" : Poincare写像の最高打点数
+* "axis" : x/y軸それぞれに表示する変数
+* "period" : 指定した整数に従って周期τを計算
+* "xrange", "yrange" : x/y軸の描画範囲
+* "x0" : 初期値
+* "params" : パラメタ
 * "p_index", "p_place" : ポアンカレ断面をx[p_index] - p_place = 0に配置
-* "direction" : Poincare断面を横切りを判定する際の向き．正負を実数で指定しますが，値は関係ないので-1とか1とかを適当に与えてください．
-* "period" : 指定周期ごとに周期時刻を計算．
+* "direction" : Poincare断面を横切りを判定する際の向き 正負を実数で指定しますが，値は関係ないので-1とか1とかを適当に与えてください．
+* "period" : 指定周期ごとに周期時刻を計算
 * "use_classic_rk" : trueの場合古典的Runge-Kutta法．falseの場合はRunge-Kutta-Fehlberg法．false推奨．
-* "rkf_first_h" : RKF法を用いる際の初期ステップ.
-* "rkf_h_max" : RKF法の最大ステップ．ステップhはこれ以上大きくなりません．
-* "rkf_h_min" : RKF法の最小ステップ．ステップhはこれ以上小さくなりません．
-* "rkf_tol" : RKF法の許容誤差(制度保証)．対象の系によってアドホックに変更する必要あり.
-* "rkf_false_iter" : RKF法にて計算に失敗したと判定する繰り返し数.
-* "delta_inc" : プログラム実行中にインタラクティブにパラメタを変化させる量.
-* "max_iter" : Poincare断面上の固定点を計算する際に実行されるNewton法の最大繰り返し数.
-* "eps" : Newton法の許容誤差.
-* "explode" : Newton法の発散判定の上限値.
+* "rkf_first_h" : RKF法を用いる際の初期ステップ
+* "rkf_h_max" : RKF法の最大ステップ ステップhはこれ以上大きくなりません．
+* "rkf_h_min" : RKF法の最小ステップ ステップhはこれ以上小さくなりません．
+* "rkf_tol" : RKF法の許容誤差(制度保証) 対象の系によってアドホックに変更する必要あり.
+* "rkf_false_iter" : RKF法にて計算に失敗したと判定する繰り返し数
+* "delta_inc" : プログラム実行中にインタラクティブにパラメタを変化させる量
+* "max_iter" : Poincare断面上の固定点を計算する際に実行されるNewton法の最大繰り返し数
+* "eps" : Newton法の許容誤差
+* "explode" : Newton法の発散判定の上限値
 
 ### 使用法
 ```
