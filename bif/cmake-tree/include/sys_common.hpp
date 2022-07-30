@@ -1,5 +1,4 @@
-#ifndef SYS_COMMON_HPP_
-#define SYS_COMMON_HPP_
+#pragma once
 
 #define EIGEN_NO_DEBUG
 
@@ -30,5 +29,3 @@ template <typename T> void view(const std::vector<std::vector<T>> &vv) {
     view(v);
   }
 }
-
-#endif

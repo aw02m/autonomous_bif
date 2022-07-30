@@ -1,5 +1,4 @@
-#ifndef DYNAMICAL_SYSTEM_HPP_
-#define DYNAMICAL_SYSTEM_HPP_
+#pragma once
 
 #include "sys_common.hpp"
 #include <nlohmann/json.hpp>
@@ -24,9 +23,11 @@ public:
 
   // RK param
   bool use_classic_rk;
-  double rk_h;
-  double rk_atol;
-  double rk_rtol;
+  double rkf_first_h;
+  double rkf_max_h;
+  double rkf_min_h;
+  double rkf_tol;
+  double rkf_false_iter;
 
   // Newton param
   unsigned int inc_param;
@@ -81,7 +82,9 @@ private:
   Eigen::MatrixXd chara_poly;
 
   double q(const Eigen::VectorXd &x);
-  void rk45_classic(Eigen::VectorXd &x, double t0, double t_end);
+  void integrate(Eigen::VectorXd &x, double t0, double t_end);
+  void rk45(Eigen::VectorXd &x, double t0, double t_end);
+  void rkf45(Eigen::VectorXd &x, double t0, double t_end);
 
   void sys_func(const Eigen::VectorXd &x, const double /*t*/);
   void store_constant_state();
@@ -102,5 +105,3 @@ private:
   Eigen::VectorXd newton_F_eqp_G();
   Eigen::MatrixXd newton_J_eqp_G();
 };
-
-#endif

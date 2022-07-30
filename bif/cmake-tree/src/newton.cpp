@@ -42,14 +42,10 @@ void newton(dynamical_system &ds) {
   bool exit_flag = false;
 
   double norm = 1;
-  double norm_x = 1;
-  double norm_tau = 1;
-  double norm_p = 1;
   switch (ds.mode) {
   case 0:
     vp(Eigen::seqN(0, ds.xdim)) = ds.x0;
     vp(ds.xdim) = ds.tau;
-    norm_p = 0;
     break;
   case 1:
   case 2:
@@ -60,14 +56,11 @@ void newton(dynamical_system &ds) {
     break;
   case 4:
     vp(Eigen::seqN(0, ds.xdim)) = ds.x0;
-    norm_tau = 0;
-    norm_p = 0;
     break;
   case 5:
   case 6:
     vp(Eigen::seqN(0, ds.xdim)) = ds.x0;
     vp(ds.xdim) = ds.p(ds.var_param);
-    norm_tau = 0;
     break;
   }
 
@@ -84,28 +77,7 @@ void newton(dynamical_system &ds) {
       vn = Eigen::ColPivHouseholderQR<Eigen::MatrixXd>(J).solve(-F) + vp;
       // std::cout << "error  : " << F.transpose().format(Comma) << std::endl;
       norm = F.norm();
-      switch (ds.mode) {
-      case 0:
-        norm_x = F(Eigen::seqN(0, ds.xdim)).norm();
-        norm_tau = fabs(F(ds.xdim));
-        break;
-      case 1:
-      case 2:
-      case 3:
-        norm_x = F(Eigen::seqN(0, ds.xdim)).norm();
-        norm_tau = fabs(F(ds.xdim));
-        norm_p = fabs(F(ds.xdim + 1));
-        break;
-      case 4:
-        norm_x = F(Eigen::seqN(0, ds.xdim)).norm();
-        break;
-      case 5:
-      case 6:
-        norm_x = F(Eigen::seqN(0, ds.xdim)).norm();
-        norm_p = fabs(F(ds.xdim));
-        break;
-      }
-      if (norm_x < ds.eps && norm_tau < ds.eps && norm_p < ds.eps) {
+      if (check_norm(F, ds)) {
         auto end = std::chrono::system_clock::now();
         auto dur = end - start;
         auto msec =
@@ -175,4 +147,14 @@ void newton(dynamical_system &ds) {
 
   if (ds.mode != 0 && ds.mode != 4)
     f.close();
+}
+
+bool check_norm(Eigen::VectorXd F, dynamical_system &ds) {
+  bool ret = true;
+  unsigned int dim = F.rows();
+  for (int i = 0; i < dim; i++) {
+    if (F(i) > ds.eps)
+      ret = false;
+  }
+  return ret;
 }
