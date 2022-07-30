@@ -2,35 +2,35 @@ import numpy as np
 import sympy as sp
 import os
 
-# # Rossler
-# xdim = 3
-# pdim = 3
+# Rossler
+xdim = 3
+pdim = 3
 
-# def f(x, p):
-#     return sp.Matrix([
-#         -x[1] - x[2],
-#         x[0] + p[0] * x[1],
-#         p[1] * x[0] - p[2] * x[2] + x[0] * x[2]
-#     ])
-
-# coupled FHN
-# xdim: dimension of the system
-# pdim: dimension of the parameter
-xdim = 4
-pdim = 5
-
-
-def h(x):
-    return (1 + sp.tanh(x)) / 2
-
-
-def func(x, p):  # define the function here
+def func(x, p):
     return sp.Matrix([
-        p[4] * (x[0] - p[2] * x[0] * x[0] * x[0] - x[2] + p[3] * h(x[1])),
-        p[4] * (x[1] - p[2] * x[1] * x[1] * x[1] - x[3] - p[3] * h(x[0])),
-        x[0] + p[0] - p[1] * x[2],
-        x[1] + p[0] - p[1] * x[3]
+        -x[1] - x[2],
+        x[0] + p[0] * x[1],
+        p[1] * x[0] - p[2] * x[2] + x[0] * x[2]
     ])
+
+# # coupled FHN
+# # xdim: dimension of the system
+# # pdim: dimension of the parameter
+# xdim = 4
+# pdim = 5
+
+
+# def h(x):
+#     return (1 + sp.tanh(x)) / 2
+
+
+# def func(x, p):  # define the function here
+#     return sp.Matrix([
+#         p[4] * (x[0] - p[2] * x[0] * x[0] * x[0] - x[2] + p[3] * h(x[1])),
+#         p[4] * (x[1] - p[2] * x[1] * x[1] * x[1] - x[3] - p[3] * h(x[0])),
+#         x[0] + p[0] - p[1] * x[2],
+#         x[1] + p[0] - p[1] * x[3]
+#     ])
 
 # DO NOT EDIT BELOW
 
