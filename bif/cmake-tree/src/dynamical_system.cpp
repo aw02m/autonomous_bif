@@ -350,18 +350,22 @@ void dynamical_system::operator()(const Eigen::VectorXd &x,
 
     if (!numerical_diff) {
       // dphidxdx
+      static std::vector<Eigen::MatrixXd> dfdxdxk(
+          xdim, Eigen::MatrixXd::Zero(xdim, xdim));
       for (int i = 0; i < xdim; i++) {
+        for (int j = 0; j < xdim; j++) {
+          dfdxdxk[i].col(j) = dfdxdx[j] * state_dphidx.col(i);
+        }
         dxdt(Eigen::seqN(counter, size_dphidx)) =
-            dfdxdx[i] * state_dphidx.col(i) * state_dphidx +
-            dfdx * state_dphidxdx[i];
+            dfdxdxk[i] * state_dphidx + dfdx * state_dphidxdx[i];
         counter += size_dphidx;
       }
 
       // dphidxdlambda
       for (int i = 0; i < xdim; i++) {
         dxdt(Eigen::seqN(counter, xdim)) =
-            dfdxdx[i] * state_dphidx.col(i) * state_dphidlambda +
-            dfdx * state_dphidxdlambda.col(i) +
+            // dfdxdx[i] * state_dphidx.col(i) * state_dphidlambda +
+            dfdxdxk[i] * state_dphidlambda + dfdx * state_dphidxdlambda.col(i) +
             dfdxdlambda * state_dphidx.col(i);
         counter += xdim;
       }
