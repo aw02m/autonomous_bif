@@ -76,8 +76,9 @@ void newton(dynamical_system &ds) {
       J = std::get<1>(FJ);
       vn = Eigen::ColPivHouseholderQR<Eigen::MatrixXd>(J).solve(-F) + vp;
       // std::cout << "error  : " << F.transpose().format(Comma) << std::endl;
-      norm = F.norm();
       if (check_norm(F, ds)) {
+        // debug_exit(F);
+        norm = F.norm();
         auto end = std::chrono::system_clock::now();
         auto dur = end - start;
         auto msec =
@@ -149,11 +150,11 @@ void newton(dynamical_system &ds) {
     f.close();
 }
 
-bool check_norm(Eigen::VectorXd F, dynamical_system &ds) {
+bool check_norm(Eigen::VectorXd &F, dynamical_system &ds) {
   bool ret = true;
   unsigned int dim = F.rows();
   for (int i = 0; i < dim; i++) {
-    if (F(i) > ds.eps)
+    if (std::abs(F(i)) > ds.eps)
       ret = false;
   }
   return ret;

@@ -89,29 +89,41 @@ void dynamical_system::store_states(const Eigen::VectorXd &v) {
   xk[1] = state(Eigen::seqN(counter, xdim));
   counter += xdim;
 
-  Eigen::MatrixXd dphidx_buf;
-  dphidx_buf = state(Eigen::seqN(counter, size_dphidx));
-  dphidx_buf.resize(xdim, xdim);
-  dphidx = dphidx_buf;
-  counter += size_dphidx;
+  // Eigen::MatrixXd dphidx_buf;
+  for (int i = 0; i < xdim; i++) {
+    dphidx.col(i) = state(Eigen::seqN(counter, xdim));
+    counter += xdim;
+  }
+  // dphidx_buf = state(Eigen::seqN(counter, size_dphidx));
+  // dphidx_buf.resize(xdim, xdim);
+  // dphidx = dphidx_buf;
+  // counter += size_dphidx;
 
   dphidlambda = state(Eigen::seqN(counter, size_dphidlambda));
-  counter += size_dphidlambda;
+  counter += xdim;
 
-  Eigen::MatrixXd dphidxdx_buf;
+  // Eigen::MatrixXd dphidxdx_buf;
   for (int i = 0; i < xdim; i++) {
-    dphidxdx_buf = state(Eigen::seqN(counter + size_dphidx * i, size_dphidx));
-    dphidxdx_buf.resize(xdim, xdim);
-    dphidxdx[i] = dphidxdx_buf;
-    dphidxdx_buf.resize(size_dphidx, 1);
+    for (int j = 0; j < xdim; j++) {
+      dphidxdx[i].col(j) = state(Eigen::seqN(counter, xdim));
+      // dphidxdx_buf = state(Eigen::seqN(counter + size_dphidx * i,
+      // size_dphidx)); dphidxdx_buf.resize(xdim, xdim); dphidxdx[i] =
+      // dphidxdx_buf; dphidxdx_buf.resize(size_dphidx, 1);
+      counter += xdim;
+    }
+    // counter += size_dphidx;
   }
-  counter += size_dphidxdx;
+  // counter += size_dphidxdx;
 
   Eigen::MatrixXd dphidxdlambda_buf;
-  dphidxdlambda_buf = state(Eigen::seqN(counter, size_dphidxdlambda));
-  dphidxdlambda_buf.resize(xdim, xdim);
-  dphidxdlambda = dphidxdlambda_buf;
-  counter += size_dphidxdlambda;
+  for (int i = 0; i < xdim; i++) {
+    dphidxdlambda.col(i) = state(Eigen::seqN(counter, xdim));
+    counter += xdim;
+  }
+  // dphidxdlambda_buf = state(Eigen::seqN(counter, size_dphidxdlambda));
+  // dphidxdlambda_buf.resize(xdim, xdim);
+  // dphidxdlambda = dphidxdlambda_buf;
+  // counter += size_dphidxdlambda;
 
   dphidxdtau = dfdx * dphidx;
 
@@ -147,8 +159,6 @@ void dynamical_system::store_states_numeric(const Eigen::VectorXd &v) {
   Eigen::VectorXd O = Eigen::VectorXd::Zero(size_dphidlambda);
   Eigen::VectorXd state(xdim + size_dphidx + size_dphidlambda);
   Eigen::VectorXd state_init(xdim + size_dphidx + size_dphidlambda);
-  Eigen::VectorXd h = Eigen::VectorXd::Zero(xdim);
-  Eigen::MatrixXd Ah;
 
   xk[0] = v(Eigen::seqN(0, xdim));
   tau = v(xdim);
@@ -164,24 +174,26 @@ void dynamical_system::store_states_numeric(const Eigen::VectorXd &v) {
   xk[1] = state(Eigen::seqN(counter, xdim));
   counter += xdim;
 
-  Eigen::MatrixXd dphidx_buf;
-  dphidx_buf = state(Eigen::seqN(counter, size_dphidx));
-  dphidx_buf.resize(xdim, xdim);
-  dphidx = dphidx_buf;
-  counter += size_dphidx;
+  for (int i = 0; i < xdim; i++) {
+    dphidx.col(i) = state(Eigen::seqN(counter, xdim));
+    counter += xdim;
+  }
 
-  dphidlambda = state(Eigen::seqN(counter, size_dphidlambda));
-  counter += size_dphidlambda;
+  dphidlambda = state(Eigen::seqN(counter, xdim));
+  counter += xdim;
 
   // dTdxdx
+  Eigen::MatrixXd Ah = Eigen::MatrixXd::Zero(xdim, xdim);
   for (int i = 0; i < xdim; i++) {
     state = state_init;
     state(i) += diff_strip;
     integrate(state, 0, tau);
-    Ah = state(Eigen::seqN(xdim, size_dphidx));
-    Ah.resize(xdim, xdim);
+    counter = xdim;
+    for (int j = 0; j < xdim; j++) {
+      Ah.col(j) = state(Eigen::seqN(counter, xdim));
+      counter += xdim;
+    }
     dphidxdx[i] = (Ah - dphidx) / diff_strip;
-    Ah.resize(size_dphidx, 1);
   }
 
   // dTdxdlambda
@@ -190,8 +202,11 @@ void dynamical_system::store_states_numeric(const Eigen::VectorXd &v) {
   p(var_param) += diff_strip;
   state = state_init;
   integrate(state, 0, tau);
-  Ah = state(Eigen::seqN(xdim, size_dphidx));
-  Ah.resize(xdim, xdim);
+  counter = xdim;
+  for (int j = 0; j < xdim; j++) {
+    Ah.col(j) = state(Eigen::seqN(counter, xdim));
+    counter += xdim;
+  }
   dphidxdlambda = (Ah - dphidx) / diff_strip;
   p(var_param) = lambda_temp;
 
@@ -245,10 +260,9 @@ void dynamical_system::store_states_fix(const Eigen::VectorXd &v) {
   xk[1] = state(Eigen::seqN(counter, xdim));
   counter += xdim;
 
-  Eigen::MatrixXd dphidx_buf;
-  dphidx_buf = state(Eigen::seqN(counter, size_dphidx));
-  dphidx_buf.resize(xdim, xdim);
-  dphidx = dphidx_buf;
+  for (int i = 0; i < xdim; i++) {
+    dphidx.col(i) = state(Eigen::seqN(counter + xdim * i, xdim));
+  }
   counter += size_dphidx;
 
   dTdx = dphidx;
@@ -290,25 +304,34 @@ void dynamical_system::operator()(const Eigen::VectorXd &x,
   // store system function f and its derivative df/d*
   sys_func(x, t);
 
-  unsigned int counter = xdim;
   // variational state (transform to matrix shape for easy producting)
-  Eigen::MatrixXd state_dphidx = x(Eigen::seqN(counter, size_dphidx));
-  state_dphidx.resize(xdim, xdim);
-  counter += size_dphidx;
-  Eigen::VectorXd state_dphidlambda = x(Eigen::seqN(counter, size_dphidlambda));
-  counter += size_dphidlambda;
-  std::vector<Eigen::MatrixXd> state_dphidxdx(
+  unsigned int counter = xdim;
+  static Eigen::MatrixXd state_dphidx = Eigen::MatrixXd::Zero(xdim, xdim);
+  static Eigen::VectorXd state_dphidlambda = Eigen::VectorXd::Zero(xdim);
+  static std::vector<Eigen::MatrixXd> state_dphidxdx(
       xdim, Eigen::MatrixXd::Zero(xdim, xdim));
-  Eigen::MatrixXd temp;
-  for (int i = 0; i < xdim; i++) {
-    temp = x(Eigen::seqN(counter + size_dphidx * i, size_dphidx));
-    temp.resize(xdim, xdim);
-    state_dphidxdx[i] = temp;
-    temp.resize(size_dphidx, 1);
+  static Eigen::MatrixXd state_dphidxdlambda =
+      Eigen::MatrixXd::Zero(xdim, xdim);
+  for (int j = 0; j < xdim; j++) {
+    state_dphidx.col(j) = x(Eigen::seqN(counter, xdim));
+    counter += xdim;
   }
-  counter += size_dphidxdx;
-  Eigen::MatrixXd state_dphidxdlambda =
-      x(Eigen::seqN(counter, size_dphidxdlambda));
+  if (mode != 0) {
+    state_dphidlambda = x(Eigen::seqN(counter, xdim));
+    counter += xdim;
+    if (!numerical_diff) {
+      for (int i = 0; i < xdim; i++) {
+        for (int j = 0; j < xdim; j++) {
+          state_dphidxdx[i].col(j) = x(Eigen::seqN(counter, xdim));
+          counter += xdim;
+        }
+      }
+      for (int j = 0; j < xdim; j++) {
+        state_dphidxdlambda.col(j) = x(Eigen::seqN(counter, xdim));
+        counter += xdim;
+      }
+    }
+  }
 
   counter = 0;
 
@@ -329,7 +352,7 @@ void dynamical_system::operator()(const Eigen::VectorXd &x,
       // dphidxdx
       for (int i = 0; i < xdim; i++) {
         dxdt(Eigen::seqN(counter, size_dphidx)) =
-            dfdxdx[i] * state_dphidx.col(i).prod() * state_dphidx +
+            dfdxdx[i] * state_dphidx.col(i) * state_dphidx +
             dfdx * state_dphidxdx[i];
         counter += size_dphidx;
       }
@@ -337,9 +360,9 @@ void dynamical_system::operator()(const Eigen::VectorXd &x,
       // dphidxdlambda
       for (int i = 0; i < xdim; i++) {
         dxdt(Eigen::seqN(counter, xdim)) =
-            dfdxdx[i] * state_dphidlambda * state_dphidx +
-            dfdxdlambda * state_dphidx.col(i) +
-            dfdx * state_dphidxdlambda.col(i);
+            dfdxdx[i] * state_dphidx.col(i) * state_dphidlambda +
+            dfdx * state_dphidxdlambda.col(i) +
+            dfdxdlambda * state_dphidx.col(i);
         counter += xdim;
       }
     }
