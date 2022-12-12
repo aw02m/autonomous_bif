@@ -92,7 +92,9 @@ void newton(dynamical_system &ds) {
         std::cout << "x0     : "
                   << vn(Eigen::seqN(0, ds.xdim)).transpose().format(Comma)
                   << std::endl;
-        std::cout << "tau    : " << vn(ds.xdim) << std::endl;
+        if (ds.mode < 4)
+          std::cout << "tau    : " << vn(ds.xdim) << std::endl;
+        std::cout << std::setprecision(4);
         std::cout << "params : " << ds.p.transpose().format(Comma) << std::endl;
         // std::cout << "theta  : " << ds.theta << std::endl;
         std::cout << "(Re(μ), Im(μ)), abs(μ), arg(μ) :" << std::endl;
@@ -120,7 +122,8 @@ void newton(dynamical_system &ds) {
       }
       vp = vn;
     }
-    ds.p[ds.inc_param] += ds.delta_inc;
+    if (p != ds.inc_iter - 1)
+      ds.p[ds.inc_param] += ds.delta_inc;
   }
 
   // set last state
