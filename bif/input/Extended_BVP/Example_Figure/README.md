@@ -1,3 +1,0 @@
-# dataplot
-
-origin : tetsushiwahaha/misctools
