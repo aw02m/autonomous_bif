@@ -1,0 +1,50 @@
+{
+    "mode": 3,
+    "out_path": "../output/out",
+    "json_out_path": "../output/out.json",
+    "tick": 0.5,
+    "max_plot": 10000,
+    "max_poincare_plot": 2,
+    "axis": [
+        0,
+        1
+    ],
+    "xrange": [
+        -10.0,
+        10.0
+    ],
+    "yrange": [
+        -10.0,
+        10.0
+    ],
+    "x0": [
+        1.0000000000000000,
+        2.5572136978783737,
+        2.5152945499427379
+    ],
+    "tau": 7.7516424996520144,
+    "params": [
+        0.7300,
+        0.9660,
+        0.8330
+    ],
+    "p_index": 0,
+    "p_place": 1,
+    "direction": -1,
+    "period": 3,
+    "use_classic_rk": true,
+    "rkf_first_h": 0.01,
+    "rkf_min_h": 1.0e-04,
+    "rkf_max_h": 0.1,
+    "rkf_tol": 0.25,
+    "rkf_false_iter": 256,
+    "numerical_diff": false,
+    "diff_strip": 1.0e-06,
+    "inc_param": 1,
+    "var_param": 0,
+    "delta_inc": -0.001,
+    "inc_iter": 5000,
+    "max_iter": 10,
+    "eps": 1e-08,
+    "explode": 1000
+}
