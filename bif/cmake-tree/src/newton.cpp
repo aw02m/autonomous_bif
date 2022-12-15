@@ -122,8 +122,20 @@ void newton(dynamical_system &ds) {
       }
       vp = vn;
     }
-    if (p != ds.inc_iter - 1)
+    if (p != ds.inc_iter - 1) {
+      // do not increase the increment parameter in last loop step
       ds.p[ds.inc_param] += ds.delta_inc;
+    } else {
+      // store states in last loop step
+      if (ds.mode < 4) {
+        ds.x0 = vn(Eigen::seqN(0, ds.xdim));
+        ds.tau = vn(ds.xdim);
+        ds.p(ds.var_param) = vn(ds.xdim + 1);
+      } else {
+        ds.x0 = vn(Eigen::seqN(0, ds.xdim));
+        ds.p(ds.var_param) = vn(ds.xdim + 1);
+      }
+    }
   }
 
   // set last state

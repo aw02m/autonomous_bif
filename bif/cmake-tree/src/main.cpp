@@ -75,8 +75,10 @@ int main(int argc, char *argv[]) {
 
   // output json for latest state
   json["x0"] = ds.x0;
+  if (ds.mode < 4) {
+    json["tau"] = ds.tau;
+  }
   json["params"] = ds.p;
-  json["tau"] = ds.tau;
   std::ofstream json_out;
   json_out.open(ds.json_out_path, std::ios::out);
   json_out << json.dump(4);
