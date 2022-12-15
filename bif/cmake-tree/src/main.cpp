@@ -16,6 +16,7 @@ int main(int argc, char *argv[]) {
 
   nlohmann::ordered_json json;
   ifs >> json;
+  ifs.close();
   dynamical_system ds(json);
 
   std::cout << "**************************************************"
@@ -75,7 +76,7 @@ int main(int argc, char *argv[]) {
   // output json for latest state
   json["x0"] = ds.x0;
   json["params"] = ds.p;
-  json["theta"] = ds.theta;
+  json["tau"] = ds.tau;
   std::ofstream json_out;
   json_out.open(ds.json_out_path, std::ios::out);
   json_out << json.dump(4);
