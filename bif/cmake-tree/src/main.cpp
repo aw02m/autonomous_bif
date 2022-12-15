@@ -22,18 +22,27 @@ int main(int argc, char *argv[]) {
             << std::endl;
   std::cout << "<initial condition>" << std::endl;
   std::cout << "mode : " << std::to_string(ds.mode);
-  switch(ds.mode){
-    case 0:
+  switch (ds.mode) {
+  case 0:
     std::cout << " (Fixed Point)";
     break;
-    case 1:
+  case 1:
     std::cout << " (Tangent Bif)";
     break;
-    case 2:
+  case 2:
     std::cout << " (Period-Doubling)";
     break;
-    case 3:  
+  case 3:
     std::cout << " (Neimark-Sacker)";
+    break;
+  case 4:
+    std::cout << " (Equilibrium Point)";
+    break;
+  case 5:
+    std::cout << " (Equilibria Tangent Bif)";
+    break;
+  case 6:
+    std::cout << " (Equilibria Hopf Bif)";
     break;
   }
   std::cout << std::endl;
@@ -50,8 +59,10 @@ int main(int argc, char *argv[]) {
             << std::endl;
   std::cout << "x0  : ";
   std::cout << ds.x0.transpose() << std::endl;
-  std::cout << "tau : ";
-  std::cout << ds.tau << std::endl;
+  if (ds.mode < 4) {
+    std::cout << "tau : ";
+    std::cout << ds.tau << std::endl;
+  }
   std::cout << "params  : ";
   std::cout << ds.p.transpose() << std::endl;
   std::cout << "theta : ";
