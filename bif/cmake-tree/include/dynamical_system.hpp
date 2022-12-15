@@ -5,7 +5,7 @@
 
 class dynamical_system {
 public:
-  dynamical_system(nlohmann::json json);
+  dynamical_system(nlohmann::ordered_json json);
   void operator()(const Eigen::VectorXd &x, Eigen::VectorXd &dxdt,
                   const double /*t*/);
   std::tuple<Eigen::VectorXd, Eigen::MatrixXd>

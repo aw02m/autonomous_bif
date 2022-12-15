@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     std::exit(1);
   }
 
-  nlohmann::json json;
+  nlohmann::ordered_json json;
   ifs >> json;
   dynamical_system ds(json);
 

@@ -1,7 +1,7 @@
 #include "dynamical_system.hpp"
 #include "essential.hpp"
 
-dynamical_system::dynamical_system(nlohmann::json json) {
+dynamical_system::dynamical_system(nlohmann::ordered_json json) {
   xdim = json["x0"].size();
   bialt_dim = 0;
   for (int i = 0; i < xdim; i++)
