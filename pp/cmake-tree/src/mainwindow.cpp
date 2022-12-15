@@ -8,6 +8,8 @@
 #include <QMetaEnum>
 #include <QScreen>
 #include <iostream>
+#include <fstream>
+#include <nlohmann/json.hpp>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow),
@@ -200,6 +202,29 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
   case Qt::Key_Plus:
     ds.delta_inc *= 10;
     std::cout << "delta_inc changed : " << ds.delta_inc << std::endl;
+    break;
+  case Qt::Key_W:
+    std::ifstream ifs(QApplication::arguments().at(1).toStdString());
+    if (ifs.fail()) {
+      std::cerr << "Specified file at arg[1] does NOT exist." << std::endl;
+      std::exit(1);
+    }
+    nlohmann::ordered_json json;
+    ifs >> json;
+    ifs.close();
+    json["x0"] = ds.x0;
+    json["params"] = ds.p;
+    json["tau"] = ds.tau;
+    std::ofstream json_out;
+    std::string json_out_path(json["json_out_path"]);
+    json_out.open(json_out_path, std::ios::out);
+    json_out << json.dump(4);
+    json_out.close();
+    std::cout << "json is wrote to " << json_out_path << " as:" << std::endl;
+    std::cout << "state : " << ds.x0.transpose().format(Comma) << std::endl;
+    std::cout << "param : " << ds.p.transpose().format(Comma) << std::endl;
+    std::cout << "tau   : " << ds.tau << " (" << ds.period << "-period)"
+              << std::endl;
     break;
   }
 }

@@ -17,6 +17,7 @@ dynamical_system::dynamical_system(const std::string &json_location) {
 
   nlohmann::json json;
   ifs >> json;
+  ifs.close();
 
   xdim = json["x0"].size();
 
