@@ -34,6 +34,7 @@ Python上でSympyを用いて自動的に系のC++コードを出力します．
 * qt6
 
 ### pp入力ファイル概要
+* "json_out_path" : (プログラム終了時の)jsonデータの出力先
 * "tick" : 1フレームに描画する時刻の範囲
 * "max_plot" : 解軌道を描画する最高打点数
 * "max_poincare_plot" : Poincare写像の最高打点数
@@ -65,6 +66,15 @@ cmake ../cmake-tree
 make
 ./main ../input/<your_input_file>.json
 ```
+環境によっては build/main_autogen/include/ui_mainwindow.h のヘッダでコンパイルエラーが発生します．
+その時は手動でそのファイルの18行目くらいを次のようにいじってください
+```
+#include "../../qcustomplot.h"
+を
+#include "qcustomplot.h"
+に変更
+```
+
 * ←→ : 変更するパラメタを選択
 * ↑↓ : 選択したパラメタを変更
 * Space : Poincare断面上の固定点，パラメタ，周期τを出力
@@ -74,6 +84,7 @@ make
 * t : 解軌道の描画の削除/表示
 * p : Poincare断面上固定点の削除/表示
 * -+ : "delta_inc"を変化
+* w : 固定点・パラメタ・周期の情報を更新してjsonを出力
 * q : プログラムの終了
 
 ## bif概要
