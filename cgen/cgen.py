@@ -2,6 +2,9 @@ import numpy as np
 import sympy as sp
 import os
 
+# fmt: off
+# DO NOT EDIT ABOVE
+
 # # Rossler
 # xdim = 3
 # pdim = 3
@@ -13,15 +16,17 @@ import os
 #         p[1] * x[0] - p[2] * x[2] + x[0] * x[2]
 #     ])
 
+
 # Extended BVP
 xdim = 3
 pdim = 3
 
-
 def func(x, p):
-    return sp.Matrix(
-        [-x[2] + p[0] * x[0] + sp.tanh(p[1] * x[0]), x[2] - x[1] / p[2], x[0] - x[1]]
-    )
+    return sp.Matrix([
+        -x[2] + p[0] * x[0] + sp.tanh(p[1] * x[0]),
+        x[2] - x[1] / p[2],
+        x[0] - x[1]
+    ])
 
 
 # # coupled FHN
@@ -30,10 +35,8 @@ def func(x, p):
 # xdim = 4
 # pdim = 5
 
-
 # def h(x):
 #     return (1 + sp.tanh(x)) / 2
-
 
 # def func(x, p):  # define the function here
 #     return sp.Matrix([
@@ -44,7 +47,7 @@ def func(x, p):
 #     ])
 
 # DO NOT EDIT BELOW
-
+# fmt: on
 
 # output path where the cpp function file is wrote
 pp_output_path = "../pp/cmake-tree/src/sys_func.cpp"
