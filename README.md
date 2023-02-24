@@ -43,7 +43,6 @@ Python上でSympyを用いて自動的に系のC++コードを出力します．
 * "xrange", "yrange" : x/y軸の描画範囲
 * "x0" : 初期値
 * "params" : パラメタ
-* "p_index", "p_place" : ポアンカレ断面をx[p_index] - p_place = 0に配置
 * "q_coef" : n+1の長さの配列です．Poincaré断面をx[q_coef[0]] + x[q_coef[1]] + ... + x[q_coef[n-1]] + q_coef[n] = 0となる位置に配置します．例えば，3次元系でx-y+1=0に配置したい場合は，[1, -1, 0, 1]となります．
 * "direction" : Poincare断面を横切りを判定する際の向き 正負を実数で指定しますが，値は関係ないので-1とか1とかを適当に与えてください．
 * "period" : 指定周期ごとに周期時刻を計算
