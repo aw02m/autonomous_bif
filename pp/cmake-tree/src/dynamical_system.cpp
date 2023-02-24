@@ -21,6 +21,20 @@ double dynamical_system::q(const Eigen::VectorXd &x) {
 //   return ret;
 // }
 
+bool is_event_active(double g, double g_new, double direction) {
+  bool up = (g <= 0) && (g_new >= 0);
+  bool down = (g >= 0) && (g_new <= 0);
+  bool either = up || down;
+
+  if (direction > 0) {
+    return up;
+  } else if (direction < 0) {
+    return down;
+  } else {
+    return either;
+  }
+}
+
 dynamical_system::dynamical_system(const std::string &json_location) {
   std::ifstream ifs(json_location);
   if (ifs.fail()) {
@@ -71,20 +85,6 @@ dynamical_system::dynamical_system(const std::string &json_location) {
   dqdx = Eigen::MatrixXd::Zero(1, xdim);
   for (unsigned int i = 0; i < xdim; i++) {
     dqdx(0, i) = q_coef[i];
-  }
-}
-
-bool is_event_active(double g, double g_new, double direction) {
-  bool up = (g <= 0) && (g_new >= 0);
-  bool down = (g >= 0) && (g_new <= 0);
-  bool either = up || down;
-
-  if (direction > 0) {
-    return up;
-  } else if (direction < 0) {
-    return down;
-  } else {
-    return either;
   }
 }
 
