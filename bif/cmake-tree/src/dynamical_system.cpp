@@ -7,8 +7,9 @@ dynamical_system::dynamical_system(nlohmann::ordered_json json) {
   for (int i = 0; i < xdim; i++)
     bialt_dim += i;
 
-  p_index = json["p_index"];
-  p_place = json["p_place"];
+  // p_index = json["p_index"];
+  // p_place = json["p_place"];
+  q_coef = json["q_coef"].get<std::vector<double>>();
 
   use_classic_rk = json["use_classic_rk"];
   rkf_first_h = json["rkf_first_h"];
@@ -66,7 +67,12 @@ dynamical_system::dynamical_system(nlohmann::ordered_json json) {
 }
 
 double dynamical_system::q(const Eigen::VectorXd &x) {
-  return x(p_index) - p_place;
+  double ret = 0.0;
+  for (unsigned int i = 0; i < xdim; i++) {
+    ret += q_coef[i] * x(i);
+  }
+  ret += q_coef[xdim];
+  return ret;
 }
 
 void dynamical_system::store_states(const Eigen::VectorXd &v) {
@@ -226,7 +232,9 @@ void dynamical_system::store_states_numeric(const Eigen::VectorXd &v) {
 
 void dynamical_system::store_constant_state() {
   dqdx = Eigen::MatrixXd::Zero(1, xdim);
-  dqdx(0, p_index) = 1.0;
+  for (unsigned int i = 0; i < xdim; i++) {
+    dqdx(0, i) = q_coef[i];
+  }
 }
 
 void dynamical_system::store_states_fix(const Eigen::VectorXd &v) {
@@ -348,9 +356,9 @@ void dynamical_system::operator()(const Eigen::VectorXd &x,
 
       // dphidxdlambda
       for (int i = 0; i < xdim; i++) {
-        dxdt(Eigen::seqN(counter, xdim)) =
-            dfdxdxk[i] * state_dphidlambda + dfdx * state_dphidxdlambda.col(i) +
-            dfdxdlambda * state_dphidx.col(i);
+        dxdt(Eigen::seqN(counter, xdim)) = dfdxdxk[i] * state_dphidlambda +
+                                           dfdx * state_dphidxdlambda.col(i) +
+                                           dfdxdlambda * state_dphidx.col(i);
         counter += xdim;
       }
     }

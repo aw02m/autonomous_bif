@@ -56,8 +56,6 @@ int main(int argc, char *argv[]) {
   std::cout << "increment parameter : " << ds.inc_param << std::endl;
   std::cout << "system dimention : " << ds.xdim << std::endl;
   std::cout << "period : " << ds.period << std::endl;
-  std::cout << "p_sec def. : q(x) = x(" << ds.p_index << ") - " << ds.p_place
-            << std::endl;
   std::cout << "x0  : ";
   std::cout << ds.x0.transpose() << std::endl;
   if (ds.mode < 4) {

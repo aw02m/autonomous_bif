@@ -5,8 +5,21 @@
 #include <nlohmann/json.hpp>
 
 double dynamical_system::q(const Eigen::VectorXd &x) {
-  return x(p_index) - p_place;
+  double ret = 0.0;
+  for (unsigned int i = 0; i < xdim; i++) {
+    ret += q_coef[i] * x(i);
+  }
+  ret += q_coef[xdim];
+  return ret;
 }
+
+// Eigen::MatrixXd dynamical_system::dqdx(const Eigen::VectorXd &x) {
+//   Eigen::MatrixXd ret = Eigen::MatrixXd::Zero(1, xdim);
+//   for (unsigned int i = 0; i < xdim; i++) {
+//     ret(0, i) = q_coef[i];
+//   }
+//   return ret;
+// }
 
 dynamical_system::dynamical_system(const std::string &json_location) {
   std::ifstream ifs(json_location);
@@ -21,8 +34,9 @@ dynamical_system::dynamical_system(const std::string &json_location) {
 
   xdim = json["x0"].size();
 
-  p_index = json["p_index"];
-  p_place = json["p_place"];
+  // p_index = json["p_index"];
+  // p_place = json["p_place"];
+  q_coef = json["q_coef"].get<std::vector<double>>();
   direction = json["direction"];
   period = json["period"];
 
@@ -55,7 +69,23 @@ dynamical_system::dynamical_system(const std::string &json_location) {
   this->p = params;
 
   dqdx = Eigen::MatrixXd::Zero(1, xdim);
-  dqdx(p_index) = 1.0;
+  for (unsigned int i = 0; i < xdim; i++) {
+    dqdx(0, i) = q_coef[i];
+  }
+}
+
+bool is_event_active(double g, double g_new, double direction) {
+  bool up = (g <= 0) && (g_new >= 0);
+  bool down = (g >= 0) && (g_new <= 0);
+  bool either = up || down;
+
+  if (direction > 0) {
+    return up;
+  } else if (direction < 0) {
+    return down;
+  } else {
+    return either;
+  }
 }
 
 void dynamical_system::integrate(double t0, const Eigen::VectorXd &x,
@@ -74,7 +104,6 @@ void dynamical_system::integrate(double t0, const Eigen::VectorXd &x,
   unsigned int loop_counter = 0;
   unsigned int newton_counter = 0;
   bool flag = true;
-  double qprod = 0;
   hit_section = false;
 
   while (flag) {
@@ -105,7 +134,6 @@ void dynamical_system::integrate(double t0, const Eigen::VectorXd &x,
       next_state += 0.11574074074074074 * k.col(0) +
                     0.5489278752436647 * k.col(2) +
                     0.5353313840155945 * k.col(3) - 0.2 * k.col(4);
-      qprod = q(next_state) * q(state);
       if (hit_section) {
         if (std::abs(q(next_state)) > explode) {
           std::cerr << "Newton's method error: exploded." << std::endl;
@@ -151,10 +179,7 @@ void dynamical_system::integrate(double t0, const Eigen::VectorXd &x,
         next_state = state;
         continue;
       }
-      if (qprod < 0 &&
-          (direction < 0 ? next_state(p_index) - state(p_index)
-                         : state(p_index) - next_state(p_index)) < 0) { //&&
-        // (next_state - state).norm() > 0.01) {
+      if (is_event_active(q(state), q(next_state), direction)) {
         hit_section = true;
         next_state = state;
         continue;
@@ -215,7 +240,6 @@ void dynamical_system::integrate_rk45(double t0, const Eigen::VectorXd &x,
   double t = t0;
   unsigned int rk_div = 100;
   double h = (t_end - t0) / rk_div;
-  double qprod = 0;
   hit_section = false;
   unsigned int newton_counter = 0;
 
@@ -230,7 +254,6 @@ void dynamical_system::integrate_rk45(double t0, const Eigen::VectorXd &x,
 
     next_state +=
         (h / 6.0) * (k.col(0) + 2.0 * k.col(1) + 2.0 * k.col(2) + k.col(3));
-    qprod = q(next_state) * q(state);
     if (hit_section) {
       if (std::abs(q(next_state)) > explode) {
         std::cerr << "Newton's method error: exploded." << std::endl;
@@ -267,10 +290,7 @@ void dynamical_system::integrate_rk45(double t0, const Eigen::VectorXd &x,
       next_state = state;
       continue;
     }
-    if (qprod < 0 &&
-        (direction < 0 ? next_state(p_index) - state(p_index)
-                       : state(p_index) - next_state(p_index)) < 0) { //&&
-      // (next_state - state).norm() > 1.0e-02) {
+    if (is_event_active(q(state), q(next_state), direction)) {
       hit_section = true;
       next_state = state;
       continue;

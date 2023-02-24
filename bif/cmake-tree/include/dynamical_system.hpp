@@ -18,8 +18,9 @@ public:
   unsigned int xdim;
   unsigned int bialt_dim;
   unsigned int period;
-  unsigned int p_index;
-  double p_place;
+  // unsigned int p_index;
+  // double p_place;
+  std::vector<double> q_coef;
 
   // RK param
   bool use_classic_rk;

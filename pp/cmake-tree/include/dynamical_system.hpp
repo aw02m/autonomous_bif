@@ -13,10 +13,12 @@ public:
 
   Eigen::VectorXd func(double t, const Eigen::VectorXd &x);
   double q(const Eigen::VectorXd &x);
+  // Eigen::MatrixXd dqdx(const Eigen::VectorXd &x);
 
   unsigned int xdim;
-  unsigned int p_index;
-  double p_place;
+  // unsigned int p_index;
+  // double p_place;
+  std::vector<double> q_coef;
   double direction;
   unsigned int period;
 
