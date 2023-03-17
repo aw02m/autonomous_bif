@@ -106,7 +106,19 @@ void newton(dynamical_system &ds) {
         }
         std::cout << "**************************************************"
                   << std::endl;
-        f << ds.p.transpose().format(Out) << std::endl;
+        // file output section start
+        // parameters
+        f << ds.p.transpose().format(Out);
+        f << " ";
+        // states and period
+        f << vn(Eigen::seqN(0, target_dim - 1)).transpose().format(Out);
+        f << " ";
+        // eigenvalues
+        Eigen::Vector2d eigvals;
+        eigvals << ds.eigvals(0).real(), ds.eigvals(0).imag();
+        f << eigvals.transpose().format(Out);
+        f << std::endl;
+        // file output section end
         v_last_succeed = vn;
         vp = vn;
         break;
