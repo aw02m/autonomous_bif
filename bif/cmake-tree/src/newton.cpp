@@ -94,7 +94,7 @@ void newton(dynamical_system &ds) {
                   << std::endl;
         if (ds.mode < 4)
           std::cout << "tau    : " << vn(ds.xdim) << std::endl;
-        std::cout << std::setprecision(4);
+        std::cout << std::setprecision(8);
         std::cout << "params : " << ds.p.transpose().format(Comma) << std::endl;
         // std::cout << "theta  : " << ds.theta << std::endl;
         std::cout << "(Re(μ), Im(μ)), abs(μ), arg(μ) :" << std::endl;
